@@ -1,19 +1,21 @@
 package codechicken.nei.jei.proxy;
 
+import codechicken.nei.ItemMobSpawner;
 import codechicken.nei.api.API;
 import codechicken.nei.api.INEIGuiHandler;
-import codechicken.nei.guihook.IContainerObjectHandler;
-import codechicken.nei.handler.NEIClientEventHandler;
 import codechicken.nei.util.LogHelper;
 import mezz.jei.Internal;
 import mezz.jei.api.*;
 import mezz.jei.api.gui.IAdvancedGuiHandler;
+import mezz.jei.api.ingredients.VanillaTypes;
+import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.IFocus.Mode;
 import mezz.jei.recipes.RecipeRegistry;
 import mezz.jei.runtime.JeiRuntime;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -106,9 +108,27 @@ public class JEIProxy implements IJEIProxy {
     @JEIPlugin
     public static class Plugin implements IModPlugin {
 
+        private IIngredientRegistry ingredientRegistry;
+
+        @Override
+        public void registerItemSubtypes(ISubtypeRegistry registry) {
+            if(!registry.hasSubtypeInterpreter(new ItemStack(Blocks.MOB_SPAWNER))) {
+                registry.registerSubtypeInterpreter(
+                        Item.getItemFromBlock(Blocks.MOB_SPAWNER),
+                        stack -> ItemMobSpawner.getSpawnData(stack).toString()
+                );
+            }
+        }
+
+        @Override
+        public void onRuntimeAvailable(IJeiRuntime runtime) {
+            ingredientRegistry.addIngredientsAtRuntime(VanillaTypes.ITEM, ItemMobSpawner.getSpawnerVariants());
+        }
+
         @Override
         public void register(IModRegistry registry) {
             helpers = registry.getJeiHelpers();
+            ingredientRegistry = registry.getIngredientRegistry();
         }
     }
 

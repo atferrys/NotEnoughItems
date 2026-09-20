@@ -1,153 +1,107 @@
 package codechicken.nei;
 
-import codechicken.nei.network.NEIClientPacketHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.util.NonNullList;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
-//TODO FIXME
-public class ItemMobSpawner extends ItemBlock {
+public class ItemMobSpawner {
 
-    private static Map<Integer, EntityLiving> entityHashMap = new HashMap<>();
-    private static Map<Integer, String> IDtoNameMap = new HashMap<>();
-    public static int idPig;
-    private static boolean loaded;
-    private static ItemMobSpawner instance;
+    public static List<ItemStack> getSpawnerVariants() {
 
-    public static void register() {
-        //GameDataManipulator.replaceItemBlock(Blocks.MOB_SPAWNER, instance = new ItemMobSpawner());
+        List<EntityEntry> mobs = new ArrayList<>();
+
+        for(EntityEntry entry : ForgeRegistries.ENTITIES) {
+            if(entry.getEntityClass() != null && EntityLiving.class.isAssignableFrom(entry.getEntityClass())) {
+                mobs.add(entry);
+            }
+        }
+
+        mobs.sort(Comparator.comparing(entry -> entry.getRegistryName().toString()));
+
+        List<ItemStack> stacks = new ArrayList<>();
+
+        for(EntityEntry entry : mobs) {
+
+            ItemStack stack = new ItemStack(Blocks.MOB_SPAWNER);
+            NBTTagCompound blockEntityTag = stack.getOrCreateSubCompound("BlockEntityTag");
+
+            NBTTagCompound spawnData = new NBTTagCompound();
+            spawnData.setString("id", entry.getRegistryName().toString());
+            blockEntityTag.setTag("SpawnData", spawnData);
+
+            // ItemBlock merges this with the placed tile's defaults, which include pigs in the SpawnPotentials, so the
+            // desired mob would initially spawn but then be replaced by the one from SpawnPotentials.
+            // https://minecraft.wiki/w/Monster_Spawner#Block_data
+            NBTTagList spawnPotentials = new NBTTagList();
+            NBTTagCompound potential = new NBTTagCompound();
+            potential.setInteger("Weight", 1);
+            potential.setTag("Entity", spawnData.copy());
+            spawnPotentials.appendTag(potential);
+            blockEntityTag.setTag("SpawnPotentials", spawnPotentials);
+
+            stacks.add(stack);
+
+        }
+
+        return stacks;
+
     }
 
-    public static void initRender() {
-        //SpawnerRenderer.load(instance);
+    public static NBTTagCompound getSpawnData(ItemStack stack) {
+
+        NBTTagCompound blockEntityTag = stack.getSubCompound("BlockEntityTag");
+
+        if(blockEntityTag != null && blockEntityTag.hasKey("SpawnData", 10)) {
+            return blockEntityTag.getCompoundTag("SpawnData").copy();
+        }
+
+        NBTTagCompound data = new NBTTagCompound();
+        data.setString("id", "minecraft:pig");
+
+        return data;
+
     }
 
-    public ItemMobSpawner() {
-        super(Blocks.MOB_SPAWNER);
-        setHasSubtypes(true);
-    }
+    public static void addTooltip(ItemStack stack, List<String> tooltip) {
 
-    /**
-     * Called from BlockMobSpawner on the client via asm generated onBlockPlacedBy
-     */
-    public static void onBlockPlaced(World world, BlockPos pos, ItemStack stack) {
-        if (!NEIClientConfig.hasSMPCounterPart()) {
+        String entityID = getSpawnData(stack).getString("id");
+
+        if(entityID.isEmpty()) {
             return;
         }
 
-        TileEntityMobSpawner tileentitymobspawner = (TileEntityMobSpawner) world.getTileEntity(pos);
-        if (tileentitymobspawner != null) {
-            setDefaultTag(stack);
-            String mobtype = IDtoNameMap.get(stack.getItemDamage());
-            if (mobtype != null) {
-                NEIClientPacketHandler.sendMobSpawnerID(pos.getX(), pos.getY(), pos.getZ(), mobtype);
-                tileentitymobspawner.getSpawnerBaseLogic().setEntityId(new ResourceLocation(mobtype));
-            }
-        }
-    }
+        EntityEntry entity;
 
-    @Override
-    public void addInformation(ItemStack itemstack, @Nullable World worldIn, List<String> list, ITooltipFlag flag) {
-        setDefaultTag(itemstack);
-        int meta = itemstack.getItemDamage();
-        if (meta == 0) {
-            meta = idPig;
-        }
-        Entity e = getEntity(meta);
-        list.add("\u00A7" + (e instanceof IMob ? "4" : "3") + IDtoNameMap.get(meta));
-    }
-
-    public static EntityLiving getEntity(int ID) {
-        EntityLiving e = entityHashMap.get(ID);
-        if (e == null) {
-            World world = Minecraft.getMinecraft().world;
-            //Class<? extends Entity> clazz = EntityList.ID_TO_CLASS.get(ID);
-            //try {
-            //    e = (EntityLiving) clazz.getConstructor(World.class).newInstance(world);
-            //} catch (Throwable t) {
-            //    if (clazz == null) {
-            //        LogHelper.error("Null class for entity (" + ID + ", " + IDtoNameMap.get(ID));
-            //    } else {
-            //        LogHelper.errorError("Error creating instance of entity: " + clazz.getName(), t);
-            //    }
-            //    e = getEntity(idPig);
-            //}
-            //entityHashMap.put(ID, e);
-        }
-        return e;
-    }
-
-    private static void setDefaultTag(ItemStack itemstack) {
-        if (!IDtoNameMap.containsKey(itemstack.getItemDamage())) {
-            itemstack.setItemDamage(idPig);
-        }
-    }
-
-    public static void loadSpawners(World world) {
-        /*if (loaded) {
+        try {
+            entity = ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entityID));
+        } catch (IllegalArgumentException e) {
             return;
         }
-        loaded = true;
-        HashMap<Class<? extends Entity>, String> classToStringMapping = null;//(HashMap<Class<? extends Entity>, String>) EntityList.CLASS_TO_NAME;
-        HashMap<Class<? extends Entity>, Integer> classToIDMapping = null;//(HashMap<Class<? extends Entity>, Integer>) EntityList.CLASS_TO_ID;
-        for (Class<? extends Entity> entityClass : classToStringMapping.keySet()) {
-            if (!EntityLiving.class.isAssignableFrom(entityClass)) {
-                continue;
-            }
-            try {
-                EntityLiving entityliving = (EntityLiving) entityClass.getConstructor(new Class[] { World.class }).newInstance(world);
-                entityliving.isChild();
 
-                int id = classToIDMapping.get(entityClass);
-                String name = classToStringMapping.get(entityClass);
-
-                if (name.equals("EnderDragon")) {
-                    continue;
-                }
-
-                IDtoNameMap.put(id, name);
-
-                if (name.equals("Pig")) {
-                    idPig = id;
-                }
-            } catch (Throwable ignored) {
-            }
+        if(entity == null) {
+            return;
         }
 
-        for (Iterator<Entry<Integer, String>> it = IDtoNameMap.entrySet().iterator(); it.hasNext(); ) {
-            Entry<Integer, String> e = it.next();
-            if (getEntity(e.getKey()).getClass() == EntityPig.class && !e.getValue().equals("Pig")) {
-                it.remove();
-            }
-        }*/
+        String nameKey = "entity." + entity.getName() + ".name";
+        String name = I18n.hasKey(nameKey) ? I18n.format(nameKey) : entityID;
+
+        boolean isHostile = entity.getEntityClass() != null && IMob.class.isAssignableFrom(entity.getEntityClass());
+        TextFormatting color = isHostile ? TextFormatting.DARK_RED : TextFormatting.DARK_AQUA;
+
+        tooltip.add(color + name);
+
     }
 
-    @Override
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-        if (!NEIClientConfig.hasSMPCounterPart()) {
-            list.add(new ItemStack(this));
-        } else {
-            for (int i : IDtoNameMap.keySet()) {
-                list.add(new ItemStack(this, 1, i));
-            }
-        }
-    }
 }

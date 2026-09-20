@@ -2,8 +2,10 @@ package codechicken.nei;
 
 import codechicken.lib.model.ModelRegistryHelper;
 import codechicken.lib.render.item.IItemRenderer;
+import codechicken.lib.render.state.GlStateTracker;
 import codechicken.lib.util.ClientUtils;
 import codechicken.lib.util.TransformUtils;
+import codechicken.nei.util.LogHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -11,65 +13,180 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
-//import net.minecraft.entity.boss.BossStatus;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SpawnerRenderer implements IItemRenderer {
 
-    public static void load(ItemMobSpawner item) {
-        ModelRegistryHelper.registerItemRenderer(item, new SpawnerRenderer());
+    private static final Minecraft MC = Minecraft.getMinecraft();
+    private static final ModelResourceLocation SPAWNER_MODEL = new ModelResourceLocation("minecraft:mob_spawner", "inventory");
+
+    private final Map<String, Entity> entities = new HashMap<>();
+    private IBakedModel baseModel;
+    private World cachedWorld;
+
+    public static void register() {
+
+        SpawnerRenderer renderer = new SpawnerRenderer();
+
+        ModelRegistryHelper.registerPreBakeCallback(registry -> {
+            renderer.baseModel = registry.getObject(SPAWNER_MODEL);
+            renderer.entities.clear();
+        });
+        ModelRegistryHelper.registerItemRenderer(Item.getItemFromBlock(Blocks.MOB_SPAWNER), renderer);
+
+        MinecraftForge.EVENT_BUS.register(renderer);
+
     }
 
-    public void renderItem(ItemStack stack, TransformType transformType) {
-        int meta = stack.getItemDamage();
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event) {
+        if(event.getWorld() == cachedWorld) {
+            entities.clear();
+            cachedWorld = null;
+        }
+    }
 
-        if (meta == 0) {
-            meta = ItemMobSpawner.idPig;
+    private Entity getEntity(NBTTagCompound data, World world) {
+
+        if(cachedWorld != world) {
+            entities.clear();
+            cachedWorld = world;
         }
 
-        //String bossName = BossStatus.bossName;
-        //int bossTimeout = BossStatus.statusBarTime;
-        Minecraft mc = Minecraft.getMinecraft();
-        World world = mc.world;
+        String entityID = data.getString("id");
 
-        IBakedModel baseModel = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation("mob_spawner"));
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(.5, .5, .5);
-        GlStateManager.scale(2, 2, 2);
-        mc.getRenderItem().renderItem(stack, baseModel);
-        GlStateManager.popMatrix();
+        if(entityID.isEmpty()) {
+            return null;
+        }
 
-        try {
-            Entity entity = ItemMobSpawner.getEntity(meta);
-            entity.setWorld(world);
-            float scale = 0.6F / Math.max(entity.height, entity.width);
+        if(!entities.containsKey(entityID)) {
 
+            Entity entity = null;
+
+            try {
+                entity = EntityList.createEntityFromNBT(data.copy(), world);
+            } catch (Exception e) {
+                LogHelper.warn("Unable to create spawner entity for {}", data, e);
+            }
+
+            // Also store the entity if it's null, as it's unlikely that trying again would work anyway
+            entities.put(entityID, entity);
+
+        }
+
+        return entities.get(entityID);
+
+    }
+
+    @Override
+    public void renderItem(ItemStack stack, TransformType transformType) {
+
+        // Render the base empty cage
+        if(baseModel != null) {
             GlStateManager.pushMatrix();
-            GlStateManager.translate(0.5, 0.4, 0.5);
-            GlStateManager.rotate((float) (ClientUtils.getRenderTime() * 10), 0, 1, 0);
-            GlStateManager.rotate(-20, 1, 0, 0);
-            GlStateManager.translate(0, -0.4, 0);
-            GlStateManager.scale(scale, scale, scale);
-            entity.setLocationAndAngles(0, 0, 0, 0, 0);
-            mc.getRenderManager().renderEntity(entity, 0, 0, 0, 0, 0, false);
-            GlStateManager.disableLighting();
-            GlStateManager.popMatrix();
-
-            GlStateManager.enableRescaleNormal();
-            OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-            GlStateManager.disableTexture2D();
-            OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
-        } catch (Exception e) {
-            if (Tessellator.getInstance().getBuffer().isDrawing) {
-                Tessellator.getInstance().draw();
+            try {
+                GlStateManager.translate(0.5F, 0.5F, 0.5F);
+                MC.getRenderItem().renderItem(stack, baseModel);
+            } finally {
+                GlStateManager.popMatrix();
             }
         }
-        //BossStatus.bossName = bossName;
-        //BossStatus.statusBarTime = bossTimeout;
+
+        if(MC.world == null) {
+            return;
+        }
+
+        NBTTagCompound data = ItemMobSpawner.getSpawnData(stack);
+        Entity entity = this.getEntity(data, MC.world);
+
+        if(entity == null) {
+            return;
+        }
+
+        RenderManager renderManager = MC.getRenderManager();
+
+        // Save current GL states to reset after the entity has been rendered
+        boolean renderShadow = renderManager.isRenderShadow();
+
+        float lightmapX = OpenGlHelper.lastBrightnessX;
+        float lightmapY = OpenGlHelper.lastBrightnessY;
+
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+        boolean lightmapEnabled = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        int matrixDepth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
+
+        GlStateTracker.pushState();
+        GlStateManager.pushMatrix();
+
+        try {
+
+            // Try render the spinning entity
+            float scale = 0.53125F / Math.max(1.0F, Math.max(entity.height, entity.width));
+            GlStateManager.translate(0.5F, 0.4F, 0.5F);
+            GlStateManager.rotate((float) (ClientUtils.getRenderTime() * 10 % 360), 0, 1, 0);
+            GlStateManager.translate(0, -0.2F, 0);
+            GlStateManager.rotate(-30, 1, 0, 0);
+            GlStateManager.scale(scale, scale, scale);
+
+            entity.setLocationAndAngles(0, 0, 0, 0, 0);
+
+            renderManager.setRenderShadow(false);
+            renderManager.renderEntity(entity, 0, 0, 0, 0, 0, true);
+
+        } catch(Exception e) {
+
+            entities.put(data.getString("id"), null); // Prevent rendering this entity from now on
+            LogHelper.warn("Unable to render spawner entity for {}", data, e);
+
+            if(Tessellator.getInstance().getBuffer().isDrawing) {
+                Tessellator.getInstance().getBuffer().finishDrawing();
+            }
+
+        } finally {
+
+            renderManager.setRenderShadow(renderShadow);
+
+            // Remove unpopped states that modded entities might leak
+            while(GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH) > matrixDepth) {
+                GlStateManager.popMatrix();
+            }
+
+            GlStateTracker.popState();
+
+            // Reset the GL states that have been saved earlier
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightmapX, lightmapY);
+            GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+
+            if(lightmapEnabled) {
+                GlStateManager.enableTexture2D();
+            } else {
+                GlStateManager.disableTexture2D();
+            }
+
+            GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+            GlStateManager.color(1, 1, 1, 1);
+
+            MC.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+
+        }
+
     }
 
     @Override
@@ -86,4 +203,5 @@ public class SpawnerRenderer implements IItemRenderer {
     public boolean isGui3d() {
         return true;
     }
+
 }

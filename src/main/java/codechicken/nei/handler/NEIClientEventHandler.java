@@ -3,6 +3,7 @@ package codechicken.nei.handler;
 import codechicken.lib.gui.GuiDraw;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.state.GlStateTracker;
+import codechicken.nei.ItemMobSpawner;
 import codechicken.nei.config.KeyBindings;
 import codechicken.nei.guihook.IContainerDrawHandler;
 import codechicken.nei.guihook.IContainerObjectHandler;
@@ -11,11 +12,12 @@ import codechicken.nei.guihook.IInputHandler;
 import codechicken.nei.network.NEIClientPacketHandler;
 import codechicken.nei.util.helper.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.GuiContainerEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -32,15 +34,12 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.commons.lang3.tuple.Triple;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import static codechicken.nei.NEIClientConfig.canPerformAction;
 
@@ -308,10 +307,19 @@ public class NEIClientEventHandler {
 
     @SubscribeEvent
     public void itemTooltipEvent(ItemTooltipEvent event) {
-        if (instanceTooltipHandlers != null && Minecraft.getMinecraft().currentScreen != null) {
-            GuiScreen screen = Minecraft.getMinecraft().currentScreen;
-            instanceTooltipHandlers.forEach(handler -> handler.handleItemDisplayName(screen, event.getItemStack(), event.getToolTip()));
+
+        ItemStack stack = event.getItemStack();
+        List<String> tooltip = event.getToolTip();
+
+        if(stack.getItem() == Item.getItemFromBlock(Blocks.MOB_SPAWNER)) {
+            ItemMobSpawner.addTooltip(stack, tooltip);
         }
+
+        if(instanceTooltipHandlers != null && Minecraft.getMinecraft().currentScreen != null) {
+            GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+            instanceTooltipHandlers.forEach(handler -> handler.handleItemDisplayName(screen, stack, tooltip));
+        }
+
     }
 
 }
