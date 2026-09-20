@@ -205,7 +205,7 @@ public class GuiHelper {
             }
         }
 
-        namelist.set(0, itemstack.getRarity().rarityColor.toString() + namelist.get(0));
+        namelist.set(0, itemstack.getRarity().getColor() + namelist.get(0));
         for (int i = 1; i < namelist.size(); i++) {
             namelist.set(i, "\u00a77" + namelist.get(i));
         }

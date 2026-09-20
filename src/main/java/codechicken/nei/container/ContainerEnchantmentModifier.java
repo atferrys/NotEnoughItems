@@ -193,7 +193,7 @@ public class ContainerEnchantmentModifier extends ContainerEnchantment {
                     if (nbttaglist.tagCount() == 0) {
                         stack.getTagCompound().removeTag("ench");
                     }
-                    if (stack.getTagCompound().hasNoTags()) {
+                    if (stack.getTagCompound().isEmpty()) {
                         stack.setTagCompound(null);
                     }
                     return;

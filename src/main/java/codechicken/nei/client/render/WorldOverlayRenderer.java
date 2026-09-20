@@ -92,7 +92,7 @@ public class WorldOverlayRenderer implements IKeyStateTracker {
         for (int x = x1 - 16; x <= x1 + 16; x++) {
             for (int z = z1 - 16; z <= z1 + 16; z++) {
                 BlockPos pos = new BlockPos(x, y1, z);
-                Chunk chunk = world.getChunkFromBlockCoords(pos);
+                Chunk chunk = world.getChunk(pos);
                 Biome biome = world.getBiome(pos);
                 if ((!cms && biome.getSpawnableList(EnumCreatureType.MONSTER).isEmpty()) || biome.getSpawningChance() <= 0) {
                     continue;

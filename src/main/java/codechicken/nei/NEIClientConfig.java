@@ -254,7 +254,7 @@ public class NEIClientConfig {
 
     public static void loadStates() {
         for (int state = 0; state < 7; state++) {
-            statesSaved[state] = !global.nbt.getCompoundTag("save" + state).hasNoTags();
+            statesSaved[state] = !global.nbt.getCompoundTag("save" + state).isEmpty();
         }
     }
 

@@ -195,12 +195,12 @@ public class NEIInitialization {
 
             for (CreativeTabs itemTab : item.getCreativeTabs()) {
                 if (itemTab != null) {
-                    while (itemTab.getTabIndex() >= creativeTabRanges.size()) {
+                    while (itemTab.getIndex() >= creativeTabRanges.size()) {
                         creativeTabRanges.add(null);
                     }
-                    ItemStackSet set = creativeTabRanges.get(itemTab.getTabIndex());
+                    ItemStackSet set = creativeTabRanges.get(itemTab.getIndex());
                     if (set == null) {
-                        creativeTabRanges.set(itemTab.getTabIndex(), set = new ItemStackSet());
+                        creativeTabRanges.set(itemTab.getIndex(), set = new ItemStackSet());
                     }
                     stackList.clear();
                     item.getSubItems(itemTab, nonNullStackList);
@@ -280,12 +280,12 @@ public class NEIInitialization {
         API.addSubset("Items.Potions.Ingredients", potioningredients);
 
         for (CreativeTabs tab : CreativeTabs.CREATIVE_TAB_ARRAY) {
-            if (tab.getTabIndex() >= creativeTabRanges.size()) {
+            if (tab.getIndex() >= creativeTabRanges.size()) {
                 continue;
             }
-            ItemStackSet set = creativeTabRanges.get(tab.getTabIndex());
+            ItemStackSet set = creativeTabRanges.get(tab.getIndex());
             if (set != null && !set.isEmpty()) {
-                API.addSubset("CreativeTabs." + I18n.format(tab.getTranslatedTabLabel()), set);
+                API.addSubset("CreativeTabs." + I18n.format(tab.getTabLabel()), set);
             }
         }
     }
@@ -343,7 +343,7 @@ public class NEIInitialization {
                     LogHelper.error("Failed to find identifier for: " + item);
                     continue;
                 }
-                String modId = ident.getResourceDomain();
+                String modId = ident.getNamespace();
                 ItemInfo.itemOwners.put(item, modId);
                 ItemStackSet itemset = modSubsets.computeIfAbsent(modId, k -> new ItemStackSet());
                 itemset.with(item);
