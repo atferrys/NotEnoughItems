@@ -285,7 +285,7 @@ public class NEIInitialization {
             }
             ItemStackSet set = creativeTabRanges.get(tab.getIndex());
             if (set != null && !set.isEmpty()) {
-                API.addSubset("CreativeTabs." + I18n.format(tab.getTabLabel()), set);
+                API.addSubset("CreativeTabs." + I18n.format(tab.getTranslationKey()), set);
             }
         }
     }
