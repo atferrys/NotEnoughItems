@@ -1,15 +1,12 @@
-[
-	{
-		"modid": "nei",
-		"name": "Not Enough Items",
-		"version": "${version}",
-		"mcversion": "${mc_version}",
-		"description": "Recipe Viewer, Inventory Manager, Item Spawner, Cheats and more.<plugins><supporters>",
-		"url": "http://www.minecraftforum.net/topic/909223",
-		"credits": "Alexandria - original idea",
-		"authorList": ["ChickenBones"],
-		"dependencies": [
-			"codechickenlib"
-		]
-	}
-]
+[{
+	"modid": "${mod_id}",
+	"name": "${mod_name}",
+	"version": "${mod_version}",
+	"mcversion": "1.12.2",
+	"description": "${mod_description}",
+	"authorList": ["${mod_authors}"],
+	"credits": "${mod_credits}",
+	"url": "${mod_url}",
+	"updateJSON": "${mod_update_json}",
+	"logoFile": "${mod_logo_path}"
+}]

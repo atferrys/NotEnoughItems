@@ -1,27 +1,25 @@
-#Stolen form AE2 Repo. :D
-# exclude all
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
 
-/*
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
 
-# Include important folders
+# gradle
+build
+.gradle
 
-# Gradle stuff
-!gradle/
-!gradlew
-!gradlew.bat
-!build.gradle
-!build.properties
-!settings.gradle
+# kate
+*.kate-swp
 
-# Other Files.
-!LICENSE.txt
-!README.md
-
-# Include git important files
-!.gitmodules
-!.gitignore
-
-# Include Important Folders
-!src/
-!libs/
-!archive/
+# other
+eclipse
+run
