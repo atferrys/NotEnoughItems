@@ -2,7 +2,6 @@ package codechicken.nei;
 
 import codechicken.lib.gui.GuiDraw;
 import codechicken.lib.vec.Rectangle4i;
-import codechicken.nei.api.API;
 import codechicken.nei.api.GuiInfo;
 import codechicken.nei.api.INEIGuiHandler;
 import codechicken.nei.config.KeyBindings;
@@ -15,8 +14,6 @@ import codechicken.nei.handler.KeyManager;
 import codechicken.nei.handler.KeyManager.IKeyStateTracker;
 import codechicken.nei.handler.NEIClientEventHandler;
 import codechicken.nei.layout.LayoutStyle;
-import codechicken.nei.layout.LayoutStyleMinecraft;
-import codechicken.nei.layout.LayoutStyleTMIOld;
 import codechicken.nei.network.NEIClientPacketHandler;
 import codechicken.nei.util.ItemList;
 import codechicken.nei.util.helper.GuiHelper;
@@ -79,12 +76,9 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
     public static Button[] timeButtons = new Button[4];
     public static Button heal;
 
-    public static HashMap<Integer, LayoutStyle> layoutStyles = new HashMap<>();
+    public static final LayoutStyle LAYOUT_STYLE = new LayoutStyle();
 
     public static void load() {
-        API.addLayoutStyle(0, new LayoutStyleMinecraft());
-        API.addLayoutStyle(1, new LayoutStyleTMIOld());
-
         instance = new LayoutManager();
         KeyManager.trackers.add(instance);
         NEIClientEventHandler.addInputHandler(instance);
@@ -212,7 +206,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
         if (!isHidden()) {
             layout(gui);
             if (isEnabled()) {
-                getLayoutStyle().drawBackground(gui);
                 for (Widget widget : drawWidgets) {
                     widget.draw(mousex, mousey);
                 }
@@ -283,7 +276,7 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
 
         visiblity.translateDependencies();
 
-        getLayoutStyle().layout(gui, visiblity);
+        LAYOUT_STYLE.layout(gui, visiblity);
 
         updateWidgetVisiblities(gui, visiblity);
     }
@@ -596,7 +589,7 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
 
             ItemList.loadItems.restart();
 
-            getLayoutStyle().init();
+            LAYOUT_STYLE.init();
             layout(gui);
         }
 
@@ -686,18 +679,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
 
         drawWidgets = newDrawWidgets;
         controlWidgets = newControlWidgets;
-    }
-
-    public static LayoutStyle getLayoutStyle(int id) {
-        LayoutStyle style = layoutStyles.get(id);
-        if (style == null) {
-            style = layoutStyles.get(0);
-        }
-        return style;
-    }
-
-    public static LayoutStyle getLayoutStyle() {
-        return getLayoutStyle(NEIClientConfig.getLayoutStyle());
     }
 
     @Deprecated//TODO, This is Un-Synchronized. We throw errors if we add widgets this way.

@@ -84,7 +84,6 @@ nei.options.inventory.widgetsenabled.false=停用NEI
 nei.options.inventory.cheatmode.0=合成表模式
 nei.options.inventory.cheatmode.1=工具模式
 nei.options.inventory.cheatmode.2=作弊模式
-nei.options.inventory.layoutstyle=界面風格
 nei.options.inventory.profileRecipes=合成查詢
 nei.options.inventory.profileRecipes.true=開啟
 nei.options.inventory.profileRecipes.false=關閉
@@ -166,8 +165,6 @@ nei.options.jei.itemPanel.1=JEI ItemPanel
 nei.options.jei.searchBox.0=NEI SearchBox
 nei.options.jei.searchBox.1=JEI SearchBox
 
-nei.layoutstyle.minecraft=Minecraft風格
-nei.layoutstyle.oldtmi=舊TMI風格
 
 nei.recipe.page=頁數 %s/%s
 nei.recipe.shaped=定型合成公式

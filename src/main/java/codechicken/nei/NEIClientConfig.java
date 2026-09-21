@@ -11,7 +11,6 @@ import codechicken.nei.config.*;
 import codechicken.nei.jei.EnumItemBrowser;
 import codechicken.nei.jei.JEIIntegrationManager;
 import codechicken.nei.jei.gui.ItemBrowserButton;
-import codechicken.nei.layout.LayoutStyle;
 import codechicken.nei.util.ItemStackSet;
 import codechicken.nei.util.LogHelper;
 import codechicken.nei.util.NEIClientUtils;
@@ -28,11 +27,9 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 
 public class NEIClientConfig {
 
@@ -83,44 +80,6 @@ public class NEIClientConfig {
 
         tag.getTag("inventory.gamemodes").setDefaultValue("creative, creative+, adventure");
         API.addOption(new OptionGamemodes("inventory.gamemodes"));
-
-        tag.getTag("inventory.layoutstyle").getIntValue(0);
-        API.addOption(new OptionCycled("inventory.layoutstyle", 0) {
-            @Override
-            public String getPrefix() {
-                return translateN(name);
-            }
-
-            @Override
-            public String getButtonText() {
-                return NEIClientUtils.translate("layoutstyle." + LayoutManager.getLayoutStyle(renderTag().getIntValue()).getName());
-            }
-
-            @Override
-            public boolean cycle() {
-                LinkedList<Integer> list = new LinkedList<>();
-                for (Entry<Integer, LayoutStyle> entry : LayoutManager.layoutStyles.entrySet()) {
-                    list.add(entry.getKey());
-                }
-
-                Collections.sort(list);
-
-                int nextLayout = renderTag().getIntValue();
-                if (nextLayout == list.getLast())//loop list
-                {
-                    nextLayout = -1;
-                }
-                for (Integer i : list) {
-                    if (i > nextLayout) {
-                        nextLayout = i;
-                        break;
-                    }
-                }
-
-                getTag().setIntValue(nextLayout);
-                return true;
-            }
-        });
 
         ItemSorter.initConfig(tag);
 
@@ -311,10 +270,6 @@ public class NEIClientConfig {
 
     public static int getLockedMode() {
         return getIntSetting("inventory.lockmode");
-    }
-
-    public static int getLayoutStyle() {
-        return getIntSetting("inventory.layoutstyle");
     }
 
     public static String getStringSetting(String s) {

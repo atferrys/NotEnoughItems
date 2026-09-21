@@ -84,7 +84,6 @@ nei.options.inventory.widgetsenabled.false=禁用NEI
 nei.options.inventory.cheatmode.0=合成模式
 nei.options.inventory.cheatmode.1=实用模式
 nei.options.inventory.cheatmode.2=作弊模式
-nei.options.inventory.layoutstyle=界面风格
 nei.options.inventory.profileRecipes=合成查阅性能分析
 nei.options.inventory.profileRecipes.true=开启
 nei.options.inventory.profileRecipes.false=关闭
@@ -156,8 +155,6 @@ nei.options.tools.dump.itempanel.mode.3=PNG
 nei.options.tools.dump.itempanel.icon.dumped=物品图标已保存到%s
 nei.options.tools.dump.itempanel.icon.cancelled=保存已取消
 
-nei.layoutstyle.minecraft=Minecraft风格
-nei.layoutstyle.oldtmi=老式TMI风格
 
 nei.recipe.page=页数 %s/%s
 nei.recipe.shaped=有序合成

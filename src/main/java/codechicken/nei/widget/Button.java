@@ -24,7 +24,7 @@ public abstract class Button extends Widget {
 
     @Override
     public void draw(int mousex, int mousey) {
-        LayoutManager.getLayoutStyle().drawButton(this, mousex, mousey);
+        LayoutManager.LAYOUT_STYLE.drawButton(this, mousex, mousey);
     }
 
     @Override

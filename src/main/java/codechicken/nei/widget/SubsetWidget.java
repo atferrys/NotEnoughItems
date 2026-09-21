@@ -88,7 +88,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
                 Rectangle4i r = new Rectangle4i(x, y, w, getSlotHeight(slot));
                 if (slot < sorted.size()) {
                     SubsetTag tag = sorted.get(slot);
-                    LayoutManager.getLayoutStyle().drawSubsetTag(tag.displayName(), x, y, r.w, r.h, tag.state.state, r.contains(mx, my));
+                    LayoutManager.LAYOUT_STYLE.drawSubsetTag(tag.displayName(), x, y, r.w, r.h, tag.state.state, r.contains(mx, my));
                 } else {
                     ItemStack stack = state.items.get(slot - sorted.size());
                     boolean hidden = SubsetWidget.isHidden(stack);
@@ -96,7 +96,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
                     int itemx = w / 2 - 8;
                     int itemy = 1;
 
-                    LayoutManager.getLayoutStyle().drawSubsetTag(null, x, y, r.w, r.h, hidden ? 0 : 2, false);
+                    LayoutManager.LAYOUT_STYLE.drawSubsetTag(null, x, y, r.w, r.h, hidden ? 0 : 2, false);
 
                     GuiHelper.drawItem(x + itemx, y + itemy, stack);
                     if (new Rectangle4i(itemx, itemy, 16, 16).contains(mx, my)) {

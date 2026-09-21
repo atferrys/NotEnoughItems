@@ -3,10 +3,8 @@ package codechicken.nei.api;
 import codechicken.lib.item.filtering.IItemFilter;
 import codechicken.lib.item.filtering.IItemFilterProvider;
 import codechicken.nei.ItemSorter;
-import codechicken.nei.LayoutManager;
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.config.Option;
-import codechicken.nei.layout.LayoutStyle;
 import codechicken.nei.util.ItemInfo;
 import codechicken.nei.util.ItemList;
 import codechicken.nei.util.ItemStackSet;
@@ -69,16 +67,6 @@ public class API {
 
     public static void addOption(Option option) {
         NEIClientConfig.getOptionList().addOption(option);
-    }
-
-    /**
-     * Add a new Layout Style for the NEI interface
-     *
-     * @param styleID The Unique ID to be used for storing your style in the config and cycling through avaliable styles
-     * @param style   The style to add.
-     */
-    public static void addLayoutStyle(int styleID, LayoutStyle style) {
-        LayoutManager.layoutStyles.put(styleID, style);
     }
 
     /**

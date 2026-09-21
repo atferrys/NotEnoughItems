@@ -84,7 +84,6 @@ nei.options.inventory.widgetsenabled.false=NEI 비활성화
 nei.options.inventory.cheatmode.0=레시피모드
 nei.options.inventory.cheatmode.1=유틸리티모드
 nei.options.inventory.cheatmode.2=치트모드
-nei.options.inventory.layoutstyle=레이아웃 스타일
 nei.options.inventory.profileRecipes=프로파일 레시피
 nei.options.inventory.profileRecipes.true=설정
 nei.options.inventory.profileRecipes.false=비설정
@@ -153,8 +152,6 @@ nei.options.tools.dump.itempanel.mode.0=CSV
 nei.options.tools.dump.itempanel.mode.1=NBT
 nei.options.tools.dump.itempanel.mode.2=Json
 
-layoutstyle.minecraft=마인크래프트
-layoutstyle.oldtmi=투매니 아이템
 
 nei.recipe.page=%s/%s 페이지
 nei.recipe.shaped=무형 조합법

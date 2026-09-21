@@ -89,7 +89,6 @@ nei.options.inventory.widgetsenabled.false=NEI無効
 nei.options.inventory.cheatmode.0=レシピモード
 nei.options.inventory.cheatmode.1=ユーティリティモード
 nei.options.inventory.cheatmode.2=チートモード
-nei.options.inventory.layoutstyle=レイアウトスタイル
 nei.options.inventory.profileRecipes=プロフィールレシピ
 nei.options.inventory.profileRecipes.true=True
 nei.options.inventory.profileRecipes.false=False
@@ -162,8 +161,6 @@ nei.options.tools.dump.itempanel.mode.3=PNG
 nei.options.tools.dump.itempanel.icon.dumped=Item Panel icons were dumped to %s
 nei.options.tools.dump.itempanel.icon.cancelled=ダンプをキャンセル
 
-nei.layoutstyle.minecraft=Minecraft
-nei.layoutstyle.oldtmi=旧TMI
 
 nei.recipe.page=ページ%s/%s
 nei.recipe.tooltip=レシピ
