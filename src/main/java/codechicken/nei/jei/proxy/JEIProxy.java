@@ -6,7 +6,8 @@ import codechicken.nei.api.INEIGuiHandler;
 import codechicken.nei.util.LogHelper;
 import mezz.jei.Internal;
 import mezz.jei.api.*;
-import mezz.jei.api.gui.IAdvancedGuiHandler;
+import mezz.jei.gui.GuiScreenHelper;
+import mezz.jei.gui.overlay.IngredientListOverlay;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IFocus;
@@ -24,7 +25,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 import java.awt.*;
 import java.util.HashSet;
-import java.util.List;
+import java.lang.reflect.Field;
 import java.util.Set;
 
 /**
@@ -35,6 +36,7 @@ public class JEIProxy implements IJEIProxy {
     private static IJeiHelpers helpers;
 
     private static Set<Rectangle> extraAreasCache;
+    private static Field guiScreenHelperField;
 
     public JEIProxy() {
         MinecraftForge.EVENT_BUS.register(new EventHandler());
@@ -89,14 +91,12 @@ public class JEIProxy implements IJEIProxy {
         try {
             JeiRuntime runtime = Internal.getRuntime();
             if (runtime != null) {
-                Set<Rectangle> rectangles = new HashSet<>();
-                for (IAdvancedGuiHandler<GuiContainer> handler : runtime.getActiveAdvancedGuiHandlers(container)) {
-                    List<Rectangle> ret = handler.getGuiExtraAreas(container);
-                    if (ret != null) {
-                        rectangles.addAll(ret);
-                    }
+                if(guiScreenHelperField == null) {
+                    guiScreenHelperField = IngredientListOverlay.class.getDeclaredField("guiScreenHelper");
+                    guiScreenHelperField.setAccessible(true);
                 }
-                return rectangles;
+                GuiScreenHelper helper = (GuiScreenHelper) guiScreenHelperField.get(runtime.getIngredientListOverlay());
+                return new HashSet<>(helper.getGuiExclusionAreas());
             }
 
         } catch (Throwable e) {
