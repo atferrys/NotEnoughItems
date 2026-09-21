@@ -2,13 +2,10 @@ package codechicken.nei;
 
 import codechicken.lib.CodeChickenLib;
 import codechicken.lib.internal.ModDescriptionEnhancer;
-import codechicken.nei.init.NEIInitialization;
 import codechicken.nei.proxy.Proxy;
 import mezz.jei.config.Constants;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.Mod.Metadata;
-import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
@@ -34,13 +31,9 @@ public class NotEnoughItems {
     @Instance
     public static NotEnoughItems instance;
 
-    @Metadata
-    public static ModMetadata metadata;
-
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         proxy.preInit(event);
-        NEIInitialization.scrapeData(event.getAsmData());
         ModDescriptionEnhancer.registerEnhancement(MOD_ID, "NotEnoughItems");
     }
 

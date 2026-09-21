@@ -3,8 +3,6 @@ package codechicken.nei.init;
 import codechicken.nei.*;
 import codechicken.nei.api.API;
 import codechicken.nei.api.GuiInfo;
-import codechicken.nei.api.IConfigureNEI;
-import codechicken.nei.api.NEIPlugin;
 import codechicken.nei.handler.NEIChestGuiHandler;
 import codechicken.nei.jei.JEIIntegrationManager;
 import codechicken.nei.util.ItemInfo;
@@ -16,7 +14,6 @@ import codechicken.nei.util.helper.potion.PotionRecipeHelper;
 import codechicken.nei.widget.dumps.FluidRegistryDumper;
 import codechicken.nei.widget.dumps.ForgeRegistryDumper;
 import codechicken.nei.widget.dumps.ItemPanelDumper;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
@@ -33,7 +30,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
@@ -41,7 +37,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
-import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -55,11 +50,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class NEIInitialization {
 
-    public static ImmutableList<IConfigureNEI> plugins;
-
     /**
      * Called to do first initialization of NEI's core components.
-     * Including default item filters, Plugin initialization. ect.
+     * Including default item filters, subsets, and GUI handlers.
      */
     public static void bootNEI() {
         long start = System.nanoTime();
@@ -95,61 +88,9 @@ public class NEIInitialization {
         LogHelper.trace("Loading NEIController..");
         NEIController.load();
 
-        LogHelper.trace("Loading plugins..");
-        for (IConfigureNEI plugin : plugins) {
-            try {
-                plugin.loadConfig();
-                LogHelper.debug("Loaded Plugin: %s[%s]", plugin.getName(), plugin.getClass().getName());
-            } catch (Exception e) {
-                LogHelper.fatalError("Caught fatal exception from an NEI plugin! Class: ", e, plugin.getClass().getName());
-            }
-        }
-
-        replaceMetadata();
-
         LogHelper.trace("Loading ItemSorter..");
         ItemSorter.loadConfig();
         LogHelper.info("Finished NEI Initialization after %s ms", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
-
-    }
-
-    private static void replaceMetadata() {
-
-        StringBuilder builder = new StringBuilder("\n\n");
-
-        if (plugins.isEmpty()) {
-            builder.append(TextFormatting.RED).append("No installed plugins.");
-        } else {
-            builder.append(TextFormatting.GREEN).append("Installed plugins: ");
-            for (IConfigureNEI plugin : plugins) {
-                builder.append("\n");
-                builder.append("      ").append(TextFormatting.GREEN);
-                builder.append(plugin.getName()).append(", Version: ").append(plugin.getVersion());
-
-            }
-        }
-        builder.append("\n\n");
-        //String desc = ModDescriptionEnhancer.enhanceDesc(NotEnoughItems.metadata.description);
-        NotEnoughItems.metadata.description = NotEnoughItems.metadata.description.replace("<plugins>", builder.toString());
-    }
-
-    public static void scrapeData(ASMDataTable dataTable) {
-        ImmutableList.Builder<IConfigureNEI> plugins = ImmutableList.builder();
-        for (ASMDataTable.ASMData data : dataTable.getAll(NEIPlugin.class.getName())) {
-            try {
-                Class<?> pluginClass = Class.forName(data.getClassName());
-                if (IConfigureNEI.class.isAssignableFrom(pluginClass)) {
-                    IConfigureNEI pluginInstance = (IConfigureNEI) pluginClass.newInstance();
-                    plugins.add(pluginInstance);
-                } else {
-                    LogHelper.error("Found class with annotation @NEIPlugin but class does not implement IConfigureNEI.. Class: " + data.getClassName());
-                }
-
-            } catch (Exception e) {
-                LogHelper.fatalError("Fatal exception occurred whilst loading a plugin! Class: %s", e, data.getClassName());
-            }
-        }
-        NEIInitialization.plugins = plugins.build();
 
     }
 
