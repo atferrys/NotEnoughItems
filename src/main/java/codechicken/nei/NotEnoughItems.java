@@ -1,7 +1,6 @@
 package codechicken.nei;
 
 import codechicken.lib.CodeChickenLib;
-import codechicken.lib.internal.ModDescriptionEnhancer;
 import codechicken.nei.proxy.Proxy;
 import mezz.jei.config.Constants;
 import net.minecraftforge.fml.common.Mod;
@@ -34,7 +33,6 @@ public class NotEnoughItems {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         proxy.preInit(event);
-        ModDescriptionEnhancer.registerEnhancement(MOD_ID, "NotEnoughItems");
     }
 
     @Mod.EventHandler
