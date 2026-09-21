@@ -15,22 +15,18 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-import static codechicken.lib.CodeChickenLib.MC_VERSION;
 import static codechicken.lib.CodeChickenLib.MC_VERSION_DEP;
 import static codechicken.nei.NotEnoughItems.*;
+import static codechicken.nei.Tags.*;
 
 /**
  * Created by covers1624 on 29/03/2017.
  */
-@Mod (modid = MOD_ID, name = MOD_NAME, version = MOD_VERSION, dependencies = DEPENDENCIES, acceptedMinecraftVersions = MC_VERSION_DEP, updateJSON = UPDATE_URL, certificateFingerprint = "f1850c39b2516232a2108a7bd84d1cb5df93b261")
+@Mod(modid = MOD_ID, name = MOD_NAME, version = VERSION, dependencies = DEPENDENCIES, acceptedMinecraftVersions = MC_VERSION_DEP)
 public class NotEnoughItems {
 
-    public static final String MOD_ID = "nei";
-    public static final String MOD_NAME = "Not Enough Items";
-    public static final String MOD_VERSION = "${mod_version}";
-    public static final String MOD_VERSION_DEP = "required-after:nei@[" + MOD_VERSION + ",);";
+    public static final String MOD_VERSION_DEP = "required-after:nei@[" + VERSION + ",);";
     public static final String DEPENDENCIES = CodeChickenLib.MOD_VERSION_DEP + ";required-after:jei@[" + Constants.VERSION + ",);required-after:forge@[14.23.5.2768,)";
-    static final String UPDATE_URL = "http://chickenbones.net/Files/notification/version.php?query=forge&version=" + MC_VERSION + "&file=NotEnoughItems";
 
     @SidedProxy (clientSide = "codechicken.nei.proxy.ProxyClient", serverSide = "codechicken.nei.proxy.Proxy")
     public static Proxy proxy;
