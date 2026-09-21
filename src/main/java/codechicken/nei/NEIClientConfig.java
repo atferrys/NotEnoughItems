@@ -155,7 +155,7 @@ public class NEIClientConfig {
 
             @Override
             public GuiOptionList getGui(GuiScreen parent, OptionList list, boolean world) {
-                return new GuiNEIOptionList(parent, list, world);
+                return new GuiOptionList(parent, list, world);
             }
         });
     }
