@@ -4,6 +4,7 @@ import codechicken.lib.packet.PacketCustom;
 import codechicken.nei.ClientHandler;
 import codechicken.nei.SpawnerRenderer;
 import codechicken.nei.client.render.WorldOverlayRenderer;
+import codechicken.nei.client.render.HUDRenderer;
 import codechicken.nei.config.KeyBindings;
 import codechicken.nei.handler.KeyManager;
 import codechicken.nei.handler.NEIClientEventHandler;
@@ -43,6 +44,9 @@ public class ProxyClient extends Proxy {
 
         MinecraftForge.EVENT_BUS.register(WorldOverlayRenderer.INSTANCE);
         KeyManager.trackers.add(WorldOverlayRenderer.INSTANCE);
+
+        MinecraftForge.EVENT_BUS.register(HUDRenderer.INSTANCE);
+        KeyManager.trackers.add(HUDRenderer.INSTANCE);
 
         KeyBindings.register();
         NEIClientEventHandler.INSTANCE.init();

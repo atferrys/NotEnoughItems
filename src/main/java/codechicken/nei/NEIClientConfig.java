@@ -95,6 +95,11 @@ public class NEIClientConfig {
             }
         });
 
+        tag.getTag("world.highlight_tips").getBooleanValue(false);
+        tag.getTag("world.highlight_tips.x").getIntValue(5000);
+        tag.getTag("world.highlight_tips.y").getIntValue(100);
+        API.addOption(new OptionOpenGui("world.highlight_tips", GuiHighlightTips.class));
+
         tag.getTag("command.creative").setDefaultValue("/gamemode {0} {1}");
         API.addOption(new OptionTextField("command.creative"));
         tag.getTag("command.item").setDefaultValue("/give {0} {1} {2} {3} {4}");

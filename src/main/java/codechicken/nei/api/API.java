@@ -3,6 +3,7 @@ package codechicken.nei.api;
 import codechicken.lib.item.filtering.IItemFilter;
 import codechicken.lib.item.filtering.IItemFilterProvider;
 import codechicken.nei.NEIClientConfig;
+import codechicken.nei.client.render.HighlightHandler;
 import codechicken.nei.config.Option;
 import codechicken.nei.handler.FastTransferManager;
 import codechicken.nei.util.ItemList;
@@ -10,6 +11,7 @@ import codechicken.nei.util.ItemStackSet;
 import codechicken.nei.widget.SubsetWidget;
 import codechicken.nei.widget.SubsetWidget.SubsetTag;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.block.Block;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -19,6 +21,27 @@ import net.minecraft.item.ItemStack;
  * These methods should be called from INEIConfig implementors
  */
 public class API {
+
+    /**
+     * Registers a new highlight identifier.
+     *
+     * @param block   The block to handle, null for all.
+     * @param handler The handler to be registered.
+     */
+    public static void registerHighlightIdentifier(Block block, IHighlightHandler handler) {
+        HighlightHandler.highlightIdentifiers.put(block, handler);
+    }
+
+    /**
+     * Register a new text handler for the block highlight tooltip with a layout specification (HEADER, BODY or FOOTER).
+     *
+     * @param handler The handler to be registered.
+     * @param layouts One or more HUDAugmenterRegistry.Layout entry. HEADER is displayed before BODY which is displayed before
+     *                FOOTER.
+     */
+    public static void registerHighlightHandler(IHighlightHandler handler, HighlightHandler.Layout... layouts) {
+        HighlightHandler.registerHighlightHandler(handler, layouts);
+    }
 
     public static void registerNEIGuiHandler(INEIGuiHandler handler) {
         GuiInfo.guiHandlers.add(handler);

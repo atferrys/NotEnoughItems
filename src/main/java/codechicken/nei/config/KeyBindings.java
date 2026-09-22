@@ -25,6 +25,7 @@ public class KeyBindings {
 
         setDefaultKeyBinding("nei.options.keys.world.chunkoverlay", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_F9, categoryNameWorld);
         setDefaultKeyBinding("nei.options.keys.world.moboverlay", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_F7, categoryNameWorld);
+        setDefaultKeyBinding("nei.options.keys.world.highlight_tips", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_NUMPAD0, categoryNameWorld);
         setDefaultKeyBinding("nei.options.keys.world.dawn", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_NONE, categoryNameWorld);
         setDefaultKeyBinding("nei.options.keys.world.noon", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_NONE, categoryNameWorld);
         setDefaultKeyBinding("nei.options.keys.world.dusk", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_NONE, categoryNameWorld);
