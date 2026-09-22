@@ -80,7 +80,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
             @Override
             protected void drawSlot(int slot, int x, int y, int mx, int my, float frame) {
                 int w = windowBounds().width;
-                Rectangle4i r = new Rectangle4i(x, y, w, getSlotHeight(slot));
+                Rectangle4i r = new Rectangle4i(0, 0, w, getSlotHeight(slot));
                 if (slot < sorted.size()) {
                     SubsetTag tag = sorted.get(slot);
                     LayoutManager.LAYOUT_STYLE.drawSubsetTag(tag.displayName(), x, y, r.w, r.h, tag.state.state, r.contains(mx, my));
