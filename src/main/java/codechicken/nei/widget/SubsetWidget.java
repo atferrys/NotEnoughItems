@@ -2,6 +2,7 @@ package codechicken.nei.widget;
 
 import codechicken.lib.gui.GuiDraw;
 import codechicken.lib.gui.GuiScrollSlot;
+import codechicken.lib.render.state.GlStateTracker;
 import codechicken.lib.item.filtering.IItemFilter;
 import codechicken.lib.item.filtering.IItemFilterProvider;
 import codechicken.lib.thread.RestartableTask;
@@ -15,6 +16,7 @@ import codechicken.nei.util.ItemList.NothingItemFilter;
 import codechicken.nei.util.helper.GuiHelper;
 import codechicken.nei.LayoutManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -654,7 +656,14 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
         if (root.isVisible()) {
             root.resize(area.x, 0, area.y);
             root.cacheState();
+            GlStateTracker.pushState();
+            GlStateManager.pushMatrix();
+            // Render the SubsetWidget on top of everything else
+            GlStateManager.translate(0, 0, 200);
+            GuiHelper.enable2DRender();
             root.draw(mx, my);
+            GlStateManager.popMatrix();
+            GlStateTracker.popState();
         }
     }
 
