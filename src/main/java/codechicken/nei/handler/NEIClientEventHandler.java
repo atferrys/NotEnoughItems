@@ -57,6 +57,7 @@ public class NEIClientEventHandler {
     public static final LinkedList<IContainerTooltipHandler> tooltipHandlers = new LinkedList<>();
     private static List<IContainerTooltipHandler> instanceTooltipHandlers;
     private static GuiScreen lastGui;
+    private boolean renderingTooltip;
 
     /**
      * Register a new Input handler;
@@ -272,7 +273,9 @@ public class NEIClientEventHandler {
             }
         }
 
+        renderingTooltip = true;
         GuiDraw.drawMultiLineTip(stack, mousePos.x + 10, mousePos.y - 12, tooltip);
+        renderingTooltip = false;
     }
 
     @SubscribeEvent
@@ -302,6 +305,12 @@ public class NEIClientEventHandler {
 
     @SubscribeEvent
     public void tooltipPreEvent(RenderTooltipEvent.Pre event) {
+        GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+        Point mouse = GuiDraw.getMousePosition();
+        if(!renderingTooltip && screen instanceof GuiContainer && GuiHelper.objectUnderMouse((GuiContainer) screen, mouse.x, mouse.y)) {
+            event.setCanceled(true);
+            return;
+        }
         event.setY(MathHelper.clip(event.getY(), 8, event.getScreenHeight() - 8));
     }
 
