@@ -181,7 +181,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
             sorted = new ArrayList<>(children.values());
             childwidth = 0;
             for (SubsetTag tag : sorted) {
-                childwidth = Math.max(childwidth, tag.nameWidth() + 2);
+                childwidth = Math.max(childwidth, tag.nameWidth() + 10);
             }
         }
 
