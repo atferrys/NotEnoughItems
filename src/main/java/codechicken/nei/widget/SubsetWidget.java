@@ -8,17 +8,13 @@ import codechicken.lib.thread.RestartableTask;
 import codechicken.lib.vec.Rectangle4i;
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.api.API;
-import codechicken.nei.jei.EnumItemBrowser;
 import codechicken.nei.jei.JEIIntegrationManager;
 import codechicken.nei.util.*;
-import codechicken.nei.util.ItemList.AnyMultiItemFilter;
 import codechicken.nei.util.ItemList.ItemsLoadedCallback;
 import codechicken.nei.util.ItemList.NothingItemFilter;
 import codechicken.nei.util.helper.GuiHelper;
-import codechicken.nei.widget.SearchField.ISearchProvider;
 import codechicken.nei.LayoutManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -28,9 +24,8 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Pattern;
 
-public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLoadedCallback, ISearchProvider {
+public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLoadedCallback {
 
     public static class SubsetState {
 
@@ -62,11 +57,9 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
                 if (slot < sorted.size()) {
                     SubsetTag tag = sorted.get(slot);
                     if (NEIClientUtils.shiftKey()) {
-                        String searchTag = tag.fullname;//TODO
-                        if (searchTag.startsWith("Mod.") && JEIIntegrationManager.itemPanelOwner == EnumItemBrowser.JEI) {
-                            searchTag = searchTag.replace("Mod.", "").replace(" ", "");
-                        }
-                        LayoutManager.searchField.setText("@" + searchTag);
+                        SubsetWidget.showOnly(tag);
+                        // TODO: Port back filtering via JEI search bar, with @modid, tabs etc...
+                        JEIIntegrationManager.setFilterText("");
                     } else if (button == 0 && count >= 2) {
                         SubsetWidget.showOnly(tag);
                     } else {
@@ -218,26 +211,6 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
             }
         }
 
-        public void addFilters(List<IItemFilter> filters) {
-            if (filter != null) {
-                filters.add(filter);
-            }
-
-            for (SubsetTag child : sorted) {
-                child.addFilters(filters);
-            }
-        }
-
-        public void search(List<SubsetTag> tags, Pattern p) {
-            if (fullname != null && p.matcher(fullname.toLowerCase()).find()) {
-                tags.add(this);
-            } else {
-                for (SubsetTag child : sorted) {
-                    child.search(tags, p);
-                }
-            }
-        }
-
         public void updateVisiblity(int mx, int my) {
             if (selectedChild != null) {
                 selectedChild.updateVisiblity(mx, my);
@@ -326,7 +299,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
         }
 
         protected int nameWidth() {
-            return Minecraft.getMinecraft().fontRenderer.getStringWidth(displayName());
+            return MC.fontRenderer.getStringWidth(displayName());
         }
 
         public boolean isVisible() {
@@ -497,6 +470,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
             }
         }
         updateState.restart();
+        JEIIntegrationManager.refreshItemVisibility();
     }
 
     private static void saveHidden() {
@@ -566,9 +540,6 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
                     if (interrupted()) {
                         return;
                     }
-                    if (ItemInfo.isHidden(item)) {
-                        continue;
-                    }
                     for (SubsetTag tag : tags) {
                         if (tag.filter.matches(item)) {
                             state.get(tag.fullname).items.add(item);
@@ -585,7 +556,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
             }
 
             subsetState = state;
-            ItemList.updateFilter.restart();
+            JEIIntegrationManager.refreshItemVisibility();
         }
 
         private void cloneStates(SubsetTag tag, List<SubsetTag> tags, HashMap<String, SubsetState> state) {
@@ -642,20 +613,42 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
         }
     }
 
+    private static final Minecraft MC = Minecraft.getMinecraft();
+    private static final int BOTTOM_MARGIN = 26;
+    
     private long lastclicktime;
 
     public SubsetWidget() {
         super("NEI Subsets");
         API.addItemFilter(this);
-        API.addSearchProvider(this);
         ItemList.registerLoadCallback(this);
+        itemsLoaded();
+    }
+
+    public List<Rectangle> getMenuAreas() {
+
+        if(!root.isVisible()) {
+            return Collections.emptyList();
+        }
+
+        List<Rectangle> areas = new ArrayList<>();
+
+        area.set(x, y + h, w, MC.currentScreen.height - BOTTOM_MARGIN - h - y);
+        root.resize(area.x, 0, area.y);
+
+        for(SubsetTag tag = root; tag != null; tag = tag.selectedChild) {
+            areas.add(new Rectangle(tag.slot.x, tag.slot.y, tag.slot.width, tag.slot.height));
+        }
+
+        return areas;
+
     }
 
     @Override
     public void draw(int mx, int my) {
         super.draw(mx, my);
 
-        area.set(x, y + h, w, LayoutManager.searchField.y - h - y); //23 for the search box
+        area.set(x, y + h, w, MC.currentScreen.height - BOTTOM_MARGIN - h - y);
 
         hoverStack = ItemStack.EMPTY;
         if (root.isVisible()) {
@@ -757,40 +750,6 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
                 return !hiddenItems.matches(item);
             }
         };
-    }
-
-    @Override
-    public boolean isPrimary() {
-        return true;
-    }
-
-    @Override
-    public IItemFilter getFilter(String searchText) {
-        if (!searchText.startsWith("@")) {
-            return null;
-        }
-
-        searchText = searchText.substring(1);
-        AnyMultiItemFilter filter = new AnyMultiItemFilter();
-        SubsetTag tag = getTag(searchText);
-        if (tag != null) {
-            tag.addFilters(filter.filters);
-        } else {
-            Pattern p = SearchField.getPattern(searchText);
-            if (p == null) {
-                return null;
-            }
-
-            List<SubsetTag> matching = new LinkedList<>();
-            root.search(matching, p);
-            if (matching.isEmpty()) {
-                return null;
-            }
-            for (SubsetTag tag2 : matching) {
-                tag2.addFilters(filter.filters);
-            }
-        }
-        return filter;
     }
 
     @Override

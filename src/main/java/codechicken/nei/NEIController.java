@@ -7,8 +7,6 @@ import codechicken.nei.guihook.IInputHandler;
 import codechicken.nei.handler.FastTransferManager;
 import codechicken.nei.handler.NEIClientEventHandler;
 import codechicken.nei.network.NEIClientPacketHandler;
-import codechicken.nei.util.ItemInfo;
-import codechicken.nei.util.LogHelper;
 import codechicken.nei.util.NEIClientUtils;
 import codechicken.nei.util.helper.GuiHelper;
 import net.minecraft.client.Minecraft;
@@ -16,7 +14,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -90,7 +87,7 @@ public class NEIController implements IInputHandler {
 
             int slotIndex = slot.slotNumber;
 
-            if (keyCode == Minecraft.getMinecraft().gameSettings.keyBindDrop.getKeyCode() && NEIClientUtils.shiftKey() && !ItemInfo.fastTransferContainerExemptions.contains(container.getClass())) {
+            if (keyCode == Minecraft.getMinecraft().gameSettings.keyBindDrop.getKeyCode() && NEIClientUtils.shiftKey() && !FastTransferManager.fastTransferContainerExemptions.contains(container.getClass())) {
                 FastTransferManager.clickSlot(container, slotIndex);
                 fastTransferManager.throwAll(container, slotIndex);
                 FastTransferManager.clickSlot(container, slotIndex);
@@ -112,7 +109,7 @@ public class NEIController implements IInputHandler {
 
             Point mousePos = getMousePosition();
             Slot mouseover = container.getSlotAtPosition(mousePos.x, mousePos.y);
-            if (mouseover != null && mouseover.getHasStack() && !ItemInfo.fastTransferContainerExemptions.contains(container.getClass())) {
+            if (mouseover != null && mouseover.getHasStack() && !FastTransferManager.fastTransferContainerExemptions.contains(container.getClass())) {
                 if(NEIClientConfig.shouldInvertMouseScrollTransfer()) {
                     scrolled = -scrolled;
                 }
@@ -193,7 +190,7 @@ public class NEIController implements IInputHandler {
         }
 
         //Custom slots or container? No thanx, bia!
-        if (GuiInfo.hasCustomSlots(gui) || ItemInfo.fastTransferContainerExemptions.contains(gui.getClass())) {
+        if (GuiInfo.hasCustomSlots(gui) || FastTransferManager.fastTransferContainerExemptions.contains(gui.getClass())) {
             return false;
         }
         //Disabled for now.

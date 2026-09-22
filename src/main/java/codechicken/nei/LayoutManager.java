@@ -13,11 +13,13 @@ import codechicken.nei.guihook.IInputHandler;
 import codechicken.nei.handler.KeyManager;
 import codechicken.nei.handler.KeyManager.IKeyStateTracker;
 import codechicken.nei.handler.NEIClientEventHandler;
+import codechicken.nei.jei.JEIIntegrationManager;
 import codechicken.nei.layout.LayoutStyle;
 import codechicken.nei.network.NEIClientPacketHandler;
 import codechicken.nei.util.ItemList;
 import codechicken.nei.util.helper.GuiHelper;
 import codechicken.nei.widget.*;
+import codechicken.nei.widget.Button;
 import codechicken.nei.widget.action.NEIActions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -29,7 +31,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import static codechicken.lib.gui.GuiDraw.drawRect;
 import static codechicken.lib.gui.GuiDraw.drawTexturedModalRect;
@@ -51,17 +55,10 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
      */
     private static TreeSet<Widget> controlWidgets = new TreeSet<>(new WidgetZOrder(true));
 
-    private static boolean showItemPanel;
-
-    public static ItemPanel itemPanel;
     public static SubsetWidget dropDown;
-    public static TextField searchField;
 
     public static Button options;
 
-    public static Button prev;
-    public static Button next;
-    public static Label pageLabel;
     public static Button more;
     public static Button less;
     public static ItemQuantityField quantity;
@@ -155,11 +152,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
 
     @Override
     public boolean lastKeyTyped(GuiScreen gui, char keyChar, int keyID) {
-        if (KeyBindings.get("nei.options.keys.gui.hide").isActiveAndMatches(keyID)) {
-            toggleBooleanSetting("inventory.hidden");
-            //False, because we need to not consume the event.
-            return false;
-        }
         if (isEnabled() && !isHidden()) {
             for (Widget widget : controlWidgets) {
                 if (inputFocused == null) {
@@ -215,8 +207,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
 
             GlStateManager.enableLighting();
             GlStateManager.disableDepth();
-        } else {
-            showItemPanel = false;
         }
     }
 
@@ -260,12 +250,10 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
     public static void layout(GuiContainer gui) {
         VisibilityData visiblity = new VisibilityData();
         if (isHidden()) {
-            //showItemPanel = false;
             visiblity.showNEI = false;
         }
-        if (gui.height - gui.getYSize() <= 40) {
-            visiblity.showSearchSection = false;
-        }
+        if (gui.getGuiTop() < 24) visiblity.showSubsets = false;
+        if (gui.width - gui.getGuiLeft() - gui.getXSize() < 70) visiblity.showQuantity = false;
         if (gui.getGuiLeft() - 4 < 76) {
             visiblity.showWidgets = false;
         }
@@ -281,10 +269,35 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
         updateWidgetVisiblities(gui, visiblity);
     }
 
+    /** Returns all the positions and sizes of the widgets and buttons */
+    public static Collection<Rectangle> getGUIAreas(GuiContainer gui) {
+
+        if(isHidden() || world == null) {
+            return Collections.emptyList();
+        }
+
+        layout(gui);
+
+        List<Rectangle> areas = new ArrayList<>();
+
+        for(Widget widget : drawWidgets) {
+
+            if(widget.w > 0 && widget.h > 0) {
+                areas.add(new Rectangle(widget.x, widget.y, widget.w, widget.h));
+            }
+
+            if(widget == dropDown) {
+                areas.addAll(dropDown.getMenuAreas());
+            }
+
+        }
+
+        return areas;
+
+    }
+
     private static void init() {
-        itemPanel = new ItemPanel();
         dropDown = new SubsetWidget();
-        searchField = new SearchField("search");
 
         options = new Button("Options") {
             @Override
@@ -301,35 +314,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
                 return translate("inventory.options");
             }
         };
-        prev = new Button("Prev") {
-            public boolean onButtonPress(boolean rightclick) {
-                if (!rightclick) {
-                    LayoutManager.itemPanel.scroll(-1);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public String getRenderLabel() {
-                return translate("inventory.prev");
-            }
-        };
-        next = new Button("Next") {
-            public boolean onButtonPress(boolean rightclick) {
-                if (!rightclick) {
-                    LayoutManager.itemPanel.scroll(1);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public String getRenderLabel() {
-                return translate("inventory.next");
-            }
-        };
-        pageLabel = new Label("(0/0)", true);
         more = new Button("+") {
             @Override
             public boolean onButtonPress(boolean rightclick) {
@@ -587,7 +571,7 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
         if (isEnabled()) {
             setInputFocused(null);
 
-            ItemList.loadItems.restart();
+            ItemList.refresh();
 
             LAYOUT_STYLE.init();
             layout(gui);
@@ -620,17 +604,13 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
         Set<Widget> newWidgets = new HashSet<>();
 
         if (!visiblity.showNEI) {
-            //showItemPanel = false;
+            drawWidgets.clear();
+            controlWidgets.clear();
             return;
         }
 
         newWidgets.add(options);
-        showItemPanel = visiblity.showItemPanel;
-        if (visiblity.showItemPanel) {
-            newWidgets.add(itemPanel);
-            newWidgets.add(prev);
-            newWidgets.add(next);
-            newWidgets.add(pageLabel);
+        if (visiblity.showQuantity) {
             if (canPerformAction("item")) {
                 newWidgets.add(more);
                 newWidgets.add(less);
@@ -638,9 +618,8 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
             }
         }
 
-        if (visiblity.showSearchSection) {
+        if (visiblity.showSubsets) {
             newWidgets.add(dropDown);
-            newWidgets.add(searchField);
         }
 
         if (canPerformAction("item") && hasSMPCounterPart() && visiblity.showStateButtons) {
@@ -719,7 +698,7 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
 
     @Override
     public boolean shouldShowTooltip(GuiScreen gui) {
-        return itemPanel.draggedStack.isEmpty() && gui instanceof GuiContainer;
+        return gui instanceof GuiContainer;
     }
 
     public static Widget getInputFocused() {
@@ -740,7 +719,7 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
     @Override
     public void renderSlotOverlay(GuiContainer window, Slot slot) {
         ItemStack item = slot.getStack();
-        if (world.nbt.getBoolean("searchinventories") && (item == null ? !getSearchExpression().equals("") : !ItemList.getItemListFilter().matches(item))) {
+        if (isEnabled() && !isHidden() && world != null && world.nbt.getBoolean("searchinventories") && !JEIIntegrationManager.matchesSearch(item)) {
             GlStateManager.disableLighting();
             //GlStateManager.depthFunc(GL11.GL_EQUAL);
             GlStateManager.translate(0, 0, 350);
@@ -833,7 +812,4 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
         }
     }
 
-    public static boolean isItemPanelActive() {
-        return showItemPanel;
-    }
 }

@@ -4,9 +4,6 @@ import codechicken.nei.*;
 import codechicken.nei.api.API;
 import codechicken.nei.api.GuiInfo;
 import codechicken.nei.handler.NEIChestGuiHandler;
-import codechicken.nei.jei.JEIIntegrationManager;
-import codechicken.nei.util.ItemInfo;
-import codechicken.nei.util.ItemList;
 import codechicken.nei.util.ItemStackSet;
 import codechicken.nei.util.LogHelper;
 import codechicken.nei.util.helper.potion.IPotionRecipe;
@@ -61,8 +58,6 @@ public class NEIInitialization {
         NEIClientConfig.loadStates();
         LogHelper.trace("Loading potion helper..");
         PotionRecipeHelper.init();
-        LogHelper.trace("Loading default hide's..");
-        hideVanillaItems();
         LogHelper.trace("Loading subsets..");
         LogHelper.trace(" Base subsets..");
         addBaseSubsets();
@@ -74,11 +69,6 @@ public class NEIInitialization {
         loadModSubsets();
         LogHelper.trace("Loading dumps..");
         loadRegistryDumps();
-        LogHelper.trace("Adding filters..");
-        API.addItemFilter(() -> item -> !ItemInfo.hiddenItems.contains(item));
-        API.addItemFilter(() -> item -> !JEIIntegrationManager.isBlacklisted(item));
-        LogHelper.trace("Registering search callback..");
-        ItemList.registerLoadCallback(ItemInfo.itemSearchNames::clear);
         LogHelper.trace("Registering gui handlers..");
         API.registerNEIGuiHandler(new NEIChestGuiHandler());
         API.registerNEIGuiHandler(new NEIDummySlotHandler());
@@ -88,15 +78,8 @@ public class NEIInitialization {
         LogHelper.trace("Loading NEIController..");
         NEIController.load();
 
-        LogHelper.trace("Loading ItemSorter..");
-        ItemSorter.loadConfig();
         LogHelper.info("Finished NEI Initialization after %s ms", TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
 
-    }
-
-    private static void hideVanillaItems() {
-        API.hideItem(new ItemStack(Blocks.FARMLAND));
-        API.hideItem(new ItemStack(Blocks.LIT_FURNACE));
     }
 
     private static void addBaseSubsets() {
@@ -285,7 +268,6 @@ public class NEIInitialization {
                     continue;
                 }
                 String modId = ident.getNamespace();
-                ItemInfo.itemOwners.put(item, modId);
                 ItemStackSet itemset = modSubsets.computeIfAbsent(modId, k -> new ItemStackSet());
                 itemset.with(item);
             } catch (Throwable t) {

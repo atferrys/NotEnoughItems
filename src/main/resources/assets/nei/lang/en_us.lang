@@ -7,8 +7,6 @@ nei.enchant.locked=Locked
 nei.enchant.unlocked=Unlocked
 
 nei.inventory.options=Options
-nei.inventory.prev=Prev
-nei.inventory.next=Next
 nei.inventory.item_subsets=Item SubSets
 nei.inventory.delete.inv=DELETE ALL ITEMS from current inventory screen
 nei.inventory.delete.one=Delete %s
@@ -56,15 +54,8 @@ nei.options.wbutton.tip.1=Overriding global setting
 
 nei.options.keys=KeyBindings
 nei.options.keys.gui=Inventory
-nei.options.keys.gui.recipe=Recipe
-nei.options.keys.gui.usage=Usage
 nei.options.keys.gui.enchant=Enchantments
 nei.options.keys.gui.potion=Potions
-nei.options.keys.gui.back=Prev Recipe
-nei.options.keys.gui.prev=Prev Page
-nei.options.keys.gui.next=Next Page
-nei.options.keys.gui.hide=Toggle NEI Visibility
-nei.options.keys.gui.search=Focus Search Bar
 nei.options.keys.world=World
 nei.options.keys.world.chunkoverlay=Chunk Boundary Overlay
 nei.options.keys.world.moboverlay=Mob Spawn Overlay
@@ -87,15 +78,10 @@ nei.options.inventory.cheatmode.2=Cheat Mode
 nei.options.inventory.profileRecipes=Profile Recipes
 nei.options.inventory.profileRecipes.true=True
 nei.options.inventory.profileRecipes.false=False
-nei.options.inventory.itemsort=Item Panel Sorting
 nei.options.inventory.itemIDs=Item IDs
 nei.options.inventory.itemIDs.0=Hidden
 nei.options.inventory.itemIDs.1=Auto
 nei.options.inventory.itemIDs.2=Shown
-nei.options.inventory.searchmode=Search Mode
-nei.options.inventory.searchmode.0=Plain
-nei.options.inventory.searchmode.1=Extended
-nei.options.inventory.searchmode.2=Regex
 nei.options.inventory.utilities=Utilities
 nei.options.inventory.utilities.tip=Select features for utility mode
 nei.options.inventory.utilities.time=Time
@@ -165,11 +151,6 @@ nei.options.tools.dump.fluids=Fluids
 nei.options.tools.dump.sound_event=Sound Event
 nei.options.tools.dump.sound_events=Sound Events
 
-nei.options.jei=JEI Integration
-nei.options.jei.itemPanel.0=NEI ItemPanel
-nei.options.jei.itemPanel.1=JEI ItemPanel
-nei.options.jei.searchBox.0=NEI SearchBox
-nei.options.jei.searchBox.1=JEI SearchBox
 
 
 nei.recipe.page=Page %s/%s
@@ -187,13 +168,3 @@ nei.recipe.firework.tooltip2=Multiple charges can be spawned from one rocket
 nei.recipe.brewing=Brewing
 nei.recipe.profiler.crafting=Crafting Profiling
 nei.recipe.profiler.usage=Usage Profiling
-
-nei.itemsort.minecraft=Minecraft
-nei.itemsort.minecraft.tip=Sorts items from vanilla minecraft first
-nei.itemsort.mod=Mod
-nei.itemsort.mod.tip=Groups items in the same mod, sorted by mod name
-nei.itemsort.id=Item ID
-nei.itemsort.default=Default
-nei.itemsort.default.tip=Leave the natural ordering of each item unchanged
-nei.itemsort.damage=Item Damage
-nei.itemsort.name=Display Name

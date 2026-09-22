@@ -62,8 +62,4 @@ public class GuiExtendedCreativeInv extends GuiContainer implements INEIGuiHandl
         return false;
     }
 
-    @Override
-    public boolean hideItemPanelSlot(GuiContainer gui, int x, int y, int w, int h) {
-        return false;
-    }
 }

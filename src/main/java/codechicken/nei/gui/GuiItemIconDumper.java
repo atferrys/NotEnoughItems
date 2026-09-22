@@ -6,7 +6,7 @@ import codechicken.nei.config.Option;
 import codechicken.nei.util.LogHelper;
 import codechicken.nei.util.NEIClientUtils;
 import codechicken.nei.util.helper.GuiHelper;
-import codechicken.nei.widget.ItemPanel;
+import codechicken.nei.jei.JEIIntegrationManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 public class GuiItemIconDumper extends GuiScreen {
 
@@ -39,6 +40,7 @@ public class GuiItemIconDumper extends GuiScreen {
         Arrays.sort(illegalChars);
     }
 
+    private final List<ItemStack> items = JEIIntegrationManager.getFilteredItemStacks();
     private Option opt;
     private int drawIndex;
     private int parseIndex;
@@ -107,10 +109,10 @@ public class GuiItemIconDumper extends GuiScreen {
         GlStateManager.enableRescaleNormal();
         GlStateManager.color(1, 1, 1, 1);
 
-        for (int i = 0; drawIndex < ItemPanel.items.size() && i < fit; drawIndex++, i++) {
+        for (int i = 0; drawIndex < items.size() && i < fit; drawIndex++, i++) {
             int x = i % cols * 18;
             int y = i / cols * 18;
-            GuiHelper.drawItem(x + 1, y + 1, ItemPanel.items.get(drawIndex));
+            GuiHelper.drawItem(x + 1, y + 1, items.get(drawIndex));
         }
 
         GL11.glFlush();
@@ -121,13 +123,13 @@ public class GuiItemIconDumper extends GuiScreen {
         int rows = img.getHeight() / boxSize;
         int cols = img.getWidth() / boxSize;
         int fit = rows * cols;
-        for (int i = 0; parseIndex < ItemPanel.items.size() && i < fit; parseIndex++, i++) {
+        for (int i = 0; parseIndex < items.size() && i < fit; parseIndex++, i++) {
             int x = i % cols * boxSize;
             int y = i / cols * boxSize;
-            exportImage(dir, img.getSubimage(x + borderSize, y + borderSize, iconSize, iconSize), ItemPanel.items.get(parseIndex));
+            exportImage(dir, img.getSubimage(x + borderSize, y + borderSize, iconSize, iconSize), items.get(parseIndex));
         }
 
-        if (parseIndex >= ItemPanel.items.size()) {
+        if (parseIndex >= items.size()) {
             returnScreen(new TextComponentTranslation(opt.fullName() + ".icon.dumped", "dumps/itempanel_icons"));
         }
     }

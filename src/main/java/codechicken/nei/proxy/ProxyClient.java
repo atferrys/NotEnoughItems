@@ -2,8 +2,6 @@ package codechicken.nei.proxy;
 
 import codechicken.lib.packet.PacketCustom;
 import codechicken.nei.ClientHandler;
-import codechicken.nei.ItemMobSpawner;
-import codechicken.nei.api.API;
 import codechicken.nei.SpawnerRenderer;
 import codechicken.nei.client.render.WorldOverlayRenderer;
 import codechicken.nei.config.KeyBindings;
@@ -52,7 +50,6 @@ public class ProxyClient extends Proxy {
 
     @Override
     public void loadComplete(FMLLoadCompleteEvent event) {
-        ItemMobSpawner.getSpawnerVariants().forEach(API::addItemListEntry);
         NEIInitialization.bootNEI();
     }
 

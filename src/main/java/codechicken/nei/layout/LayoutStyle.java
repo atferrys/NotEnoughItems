@@ -4,6 +4,8 @@ import codechicken.lib.vec.Rectangle4i;
 import codechicken.nei.LayoutManager;
 import codechicken.nei.NEIController;
 import codechicken.nei.VisibilityData;
+import codechicken.nei.jei.JEIIntegrationManager;
+import java.awt.Rectangle;
 import codechicken.nei.util.NEIClientUtils;
 import codechicken.nei.widget.Button;
 import codechicken.nei.widget.action.NEIActions;
@@ -105,32 +107,15 @@ public final class LayoutStyle {
 
         reset();
 
-        prev.y = 2;
-        prev.h = 16;
-        prev.w = containerLeft / 3;
-        prev.x = (containerWidth + windowWidth) / 2 + 2;
-        next.x = windowWidth - prev.w - 2;
-
-        next.y = prev.y;
-        next.w = prev.w;
-        next.h = prev.h;
-        pageLabel.x = containerLeft * 3 / 2 + containerWidth + 1;
-        pageLabel.y = prev.y + 5;
-        pageLabel.text = "(" + itemPanel.getPage() + "/" + itemPanel.getNumPages() + ")";
-
-        itemPanel.y = prev.h + prev.y;
-        itemPanel.x = (containerWidth + windowWidth) / 2 + 3;
-        itemPanel.w = windowWidth - 3 - itemPanel.x;
-        itemPanel.h = windowHeight - 15 - itemPanel.y;
-        if (!canPerformAction("item")) {
-            itemPanel.h += 15;
-        }
-        itemPanel.resize();
-
         more.w = more.h = less.w = less.h = 16;
-        less.x = prev.x;
-        more.x = windowWidth - less.w - 2;
-        more.y = less.y = windowHeight - more.h - 2;
+        Rectangle panel = JEIIntegrationManager.getItemPanelBounds();
+        int pickerLeft = panel == null ? containerLeft + containerWidth + 3 : panel.x;
+        int pickerWidth = panel == null ? windowWidth - pickerLeft - 2 : panel.width;
+        less.x = pickerLeft;
+        more.x = pickerLeft + pickerWidth - more.w;
+
+        int bottomPadding = JEIIntegrationManager.isSearchBarCentered(gui) ? 4 : 26;
+        more.y = less.y = windowHeight - more.h - bottomPadding;
 
         quantity.x = less.x + less.w + 2;
         quantity.y = less.y;
@@ -194,18 +179,9 @@ public final class LayoutStyle {
             layoutButton(heal);
         }
 
-        searchField.y = windowHeight - searchField.h - 2;
-
         dropDown.h = 20;
-        dropDown.w = prev.x - dropDown.x - 3;
-        searchField.h = 20;
-        searchField.w = 150;
-        searchField.x = (windowWidth - searchField.w) / 2;
-
-        if (!visiblity.showSearchSection) {
-            //TODO dropDown.setDropDown(0);
-            searchField.setFocus(false);
-        }
+        dropDown.w = Math.max(0, containerLeft + containerWidth - dropDown.x - 3);
+        dropDown.y = 2;
 
         int maxWidth = 0;
         for (int i = 0; i < 7; i++) {

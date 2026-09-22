@@ -8,14 +8,12 @@ import codechicken.lib.util.ClientUtils;
 import codechicken.lib.util.CommonUtils;
 import codechicken.nei.api.*;
 import codechicken.nei.config.*;
-import codechicken.nei.jei.EnumItemBrowser;
-import codechicken.nei.jei.JEIIntegrationManager;
-import codechicken.nei.jei.gui.ItemBrowserButton;
 import codechicken.nei.util.ItemStackSet;
 import codechicken.nei.util.LogHelper;
 import codechicken.nei.util.NEIClientUtils;
 import codechicken.nei.widget.SubsetWidget;
 import codechicken.nei.widget.action.NEIActions;
+import mezz.jei.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -64,7 +62,6 @@ public class NEIClientConfig {
         tag.getTag("inventory.widgetsenabled").getBooleanValue(true);
         API.addOption(new OptionToggleButton("inventory.widgetsenabled"));
 
-        tag.getTag("inventory.hidden").getBooleanValue(false);
         tag.getTag("inventory.cheatmode").getIntValue(2);
         tag.getTag("inventory.lockmode").setComment("For those who can't help themselves.\nSet this to a mode and you will be unable to change it ingame").getIntValue(-1);
         API.addOption(new OptionCycled("inventory.cheatmode", 3) {
@@ -81,13 +78,8 @@ public class NEIClientConfig {
         tag.getTag("inventory.gamemodes").setDefaultValue("creative, creative+, adventure");
         API.addOption(new OptionGamemodes("inventory.gamemodes"));
 
-        ItemSorter.initConfig(tag);
-
         tag.getTag("inventory.itemIDs").getIntValue(1);
         API.addOption(new OptionCycled("inventory.itemIDs", 3, true));
-
-        tag.getTag("inventory.searchmode").getIntValue(1);
-        API.addOption(new OptionCycled("inventory.searchmode", 3, true));
 
         tag.getTag("inventory.profileRecipes").getBooleanValue(false);
         API.addOption(new OptionToggleButton("inventory.profileRecipes", true));
@@ -114,26 +106,6 @@ public class NEIClientConfig {
         tag.getTag("command.heal").setDefaultValue("");
         API.addOption(new OptionTextField("command.heal"));
 
-        JEIIntegrationManager.initConfig(tag);
-
-        API.addOption(new ItemBrowserButton("jei.itemPanel") {
-            @Override
-            protected void setValue(EnumItemBrowser itemBrowser) {
-                JEIIntegrationManager.setItemPanelOwner(itemBrowser);
-            }
-        });
-
-        API.addOption(new ItemBrowserButton("jei.searchBox") {
-            @Override
-            public boolean isEnabled() {
-                return JEIIntegrationManager.itemPanelOwner == EnumItemBrowser.JEI;
-            }
-
-            @Override
-            protected void setValue(EnumItemBrowser itemBrowser) {
-                JEIIntegrationManager.setSearchBoxOwner(itemBrowser);
-            }
-        });
     }
 
     private static void linkOptionList() {
@@ -185,7 +157,6 @@ public class NEIClientConfig {
         setWorldDefaults();
         creativeInv = new ItemStack[54];
         ArrayUtils.fillArray(creativeInv, ItemStack.EMPTY);
-        LayoutManager.searchField.setText(getSearchExpression());
         LayoutManager.quantity.setText(Integer.toString(getItemQuantity()));
         SubsetWidget.loadHidden();
 
@@ -198,9 +169,6 @@ public class NEIClientConfig {
 
     private static void setWorldDefaults() {
         NBTTagCompound nbt = world.nbt;
-        if (!nbt.hasKey("search")) {
-            nbt.setString("search", "");
-        }
         if (!nbt.hasKey("quantity")) {
             nbt.setInteger("quantity", 0);
         }
@@ -238,7 +206,7 @@ public class NEIClientConfig {
     }
 
     public static boolean isHidden() {
-        return !isEnabled || getBooleanSetting("inventory.hidden");
+        return !isEnabled || !Config.isOverlayEnabled();
     }
 
     /**
@@ -297,30 +265,6 @@ public class NEIClientConfig {
 
     public static void setIntSetting(String setting, int val) {
         getSetting(setting).setIntValue(val);
-    }
-
-    public static String getSearchExpression() {
-        return world.nbt.getString("search");
-    }
-
-    public static void setSearchExpression(String expression) {
-        JEIIntegrationManager.setFilterText(expression);
-        world.nbt.setString("search", expression);
-        world.saveNBT();
-    }
-
-    /**
-     * A split off of setSearchExpression that avoids a JEI update.
-     *
-     * @param expression Search term.
-     */
-    public static void setSearchExpression(String expression, boolean updateJEI) {
-        if (updateJEI) {
-            setSearchExpression(expression);
-        } else {
-            world.nbt.setString("search", expression);
-            world.saveNBT();
-        }
     }
 
     public static boolean isMouseScrollTransferEnabled() {

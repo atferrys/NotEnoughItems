@@ -7,8 +7,6 @@ nei.enchant.locked=Låst
 nei.enchant.unlocked=Olåst
 
 nei.inventory.options=Alternativ
-nei.inventory.prev=Föreg
-nei.inventory.next=Nästa
 nei.inventory.item_subsets=Undergrupper av föremål
 nei.inventory.delete.inv=RADERA ALLA FÖREMÅL i utrustningen
 nei.inventory.delete.one=Radera %s
@@ -56,15 +54,8 @@ nei.options.wbutton.tip.1=Överskrider global inställning
 
 nei.options.keys=Kortkommandon
 nei.options.keys.gui=Utrustning
-nei.options.keys.gui.recipe=Recept
-nei.options.keys.gui.usage=Användning
 nei.options.keys.gui.enchant=Förtrollningar
 nei.options.keys.gui.potion=Brygder
-nei.options.keys.gui.back=Föreg recept
-nei.options.keys.gui.prev=Föreg sida
-nei.options.keys.gui.next=Nästa sida
-nei.options.keys.gui.hide=Visa/dölj NEI
-nei.options.keys.gui.search=Markera sökfält
 nei.options.keys.world=Värld
 nei.options.keys.world.chunkoverlay=Överlägg för datablocksgränser
 nei.options.keys.world.moboverlay=Överlägg för hur monster skapas
@@ -87,15 +78,10 @@ nei.options.inventory.cheatmode.2=Fuskläge
 nei.options.inventory.profileRecipes=Profilrecept
 nei.options.inventory.profileRecipes.true=Sant
 nei.options.inventory.profileRecipes.false=Falskt
-nei.options.inventory.itemsort=Sortering av föremålspanelen
 nei.options.inventory.itemIDs=Föremåls-ID
 nei.options.inventory.itemIDs.0=Dold
 nei.options.inventory.itemIDs.1=Auto
 nei.options.inventory.itemIDs.2=Visas
-nei.options.inventory.searchmode=Sökningsläge
-nei.options.inventory.searchmode.0=Vanlig
-nei.options.inventory.searchmode.1=Utvidgad
-nei.options.inventory.searchmode.2=Regex
 nei.options.inventory.utilities=Hjälpmedel
 nei.options.inventory.utilities.tip=Välj funktioner till hjälpmedelsläget
 nei.options.inventory.utilities.time=Tid
@@ -165,11 +151,6 @@ nei.options.tools.dump.fluids=Vätskor
 nei.options.tools.dump.sound_event=Ljudhändelse
 nei.options.tools.dump.sound_events=Ljudhändelser
 
-nei.options.jei=JEI-integrering
-nei.options.jei.itemPanel.0=NEI:s föremålspanel
-nei.options.jei.itemPanel.1=JEI:s föremålspanel
-nei.options.jei.searchBox.0=NEI:s sökfält
-nei.options.jei.searchBox.1=JEI:s sökfält
 
 
 nei.recipe.page=Sida %s/%s
@@ -187,13 +168,3 @@ nei.recipe.firework.tooltip2=Flera laddningar kan skapas från en raket
 nei.recipe.brewing=Bryggning
 nei.recipe.profiler.crafting=Tillverkningsprofilering
 nei.recipe.profiler.usage=Användningsprofilering
-
-nei.itemsort.minecraft=Minecraft
-nei.itemsort.minecraft.tip=Sortera föremål från vanillaversionen av Minecraft först
-nei.itemsort.mod=Mod
-nei.itemsort.mod.tip=Grupperar föremål i samma mod, sorterade efter modnamn
-nei.itemsort.id=Föremål-ID
-nei.itemsort.default=Standard
-nei.itemsort.default.tip=Lämna den naturliga sorteringen för varje föremål oförändrad
-nei.itemsort.damage=Föremålsskada
-nei.itemsort.name=Visningsnamn

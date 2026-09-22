@@ -18,6 +18,9 @@ import static codechicken.nei.util.NEIServerUtils.*;
 
 public class FastTransferManager {
 
+    public static final HashSet<Class<? extends Slot>> fastTransferExemptions = new HashSet<>();
+    public static final HashSet<Class<? extends GuiContainer>> fastTransferContainerExemptions = new HashSet<>();
+
     /**
      * Based on the general assumption that we want to fill top to bottom, left to right
      */

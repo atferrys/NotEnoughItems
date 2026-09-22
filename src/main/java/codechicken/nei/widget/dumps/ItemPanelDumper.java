@@ -5,7 +5,7 @@ import codechicken.lib.vec.Rectangle4i;
 import codechicken.nei.gui.GuiItemIconDumper;
 import codechicken.nei.util.NEIClientUtils;
 import codechicken.nei.util.helper.GuiHelper;
-import codechicken.nei.widget.ItemPanel;
+import codechicken.nei.jei.JEIIntegrationManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -37,7 +37,7 @@ public class ItemPanelDumper extends DataDumper {
     @Override
     public Iterable<String[]> dump(int mode) {
         LinkedList<String[]> list = new LinkedList<>();
-        for (ItemStack stack : ItemPanel.items) {
+        for (ItemStack stack : JEIIntegrationManager.getFilteredItemStacks()) {
             list.add(new String[] { Item.REGISTRY.getNameForObject(stack.getItem()).toString(), Integer.toString(Item.getIdFromItem(stack.getItem())), Integer.toString(InventoryUtils.actualDamage(stack)), stack.getTagCompound() == null ? "false" : "true", TextFormatting.getTextWithoutFormattingCodes(GuiHelper.itemDisplayNameShort(stack)) });
         }
 
@@ -126,7 +126,7 @@ public class ItemPanelDumper extends DataDumper {
 
     public void dumpNBT(File file) throws IOException {
         NBTTagList list = new NBTTagList();
-        for (ItemStack stack : ItemPanel.items) {
+        for (ItemStack stack : JEIIntegrationManager.getFilteredItemStacks()) {
             list.appendTag(stack.writeToNBT(new NBTTagCompound()));
         }
 
@@ -138,7 +138,7 @@ public class ItemPanelDumper extends DataDumper {
 
     public void dumpJson(File file) throws IOException {
         PrintWriter p = new PrintWriter(file);
-        for (ItemStack stack : ItemPanel.items) {
+        for (ItemStack stack : JEIIntegrationManager.getFilteredItemStacks()) {
             NBTTagCompound tag = stack.writeToNBT(new NBTTagCompound());
             tag.removeTag("Count");
             p.println(tag);

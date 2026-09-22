@@ -46,17 +46,4 @@ public interface INEIGuiHandler {
         return false;
     }
 
-    /**
-     * Used to prevent the item panel from drawing on top of other gui elements.
-     * This function will also be called with a 1x1 size rectangle on the mouse position for determining if the given coordinate should override item panel functions such as scrolling
-     *
-     * @param x The x coordinate of the rectangle bounding the slot
-     * @param y The y coordinate of the rectangle bounding the slot
-     * @param w The w coordinate of the rectangle bounding the slot
-     * @param h The h coordinate of the rectangle bounding the slot
-     * @return true if the item panel slot within the specified rectangle should not be rendered.
-     */
-    default boolean hideItemPanelSlot(GuiContainer gui, int x, int y, int w, int h) {
-        return false;
-    }
 }

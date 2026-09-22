@@ -1,6 +1,5 @@
 package codechicken.nei.config;
 
-import codechicken.nei.jei.JEIIntegrationManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -21,15 +20,8 @@ public class KeyBindings {
     private static List<KeyBinding> keyBindingsToRegister = new ArrayList<>();
 
     static {
-        setDefaultKeyBinding("nei.options.keys.gui.recipe", JEIIntegrationManager.getShowRecipes());
-        setDefaultKeyBinding("nei.options.keys.gui.usage", JEIIntegrationManager.getShowUses());
-        setDefaultKeyBinding("nei.options.keys.gui.back", JEIIntegrationManager.getRecipeBack());
         setDefaultKeyBinding("nei.options.keys.gui.enchant", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_X, categoryNameGui);
         setDefaultKeyBinding("nei.options.keys.gui.potion", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_P, categoryNameGui);
-        setDefaultKeyBinding("nei.options.keys.gui.prev", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_PRIOR, categoryNameGui);
-        setDefaultKeyBinding("nei.options.keys.gui.next", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_NEXT, categoryNameGui);
-        setDefaultKeyBinding("nei.options.keys.gui.hide", JEIIntegrationManager.getToggleOverlay());
-        setDefaultKeyBinding("nei.options.keys.gui.search", JEIIntegrationManager.getFocusSearch());
 
         setDefaultKeyBinding("nei.options.keys.world.chunkoverlay", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_F9, categoryNameWorld);
         setDefaultKeyBinding("nei.options.keys.world.moboverlay", KeyConflictContext.IN_GAME, KeyModifier.NONE, Keyboard.KEY_F7, categoryNameWorld);
