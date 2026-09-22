@@ -95,7 +95,7 @@ public final class LayoutStyle {
         }
         LayoutManager.drawButtonBackground(x, y, w, h, false, state == 0 ? 0 : 1);
         if (text != null) {
-            drawStringC(text, x, y, w, h, state == 2 ? 0xFFE0E0E0 : 0xFFA0A0A0);
+            drawStringC(text, x, y, w, h, mouseover ? 0xFFFFFFA0 : (state == 2 ? 0xFFE0E0E0 : 0xFFA0A0A0));
         }
     }
 
