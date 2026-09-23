@@ -169,3 +169,10 @@ nei.recipe.firework.tooltip2=Multiple charges can be spawned from one rocket
 nei.recipe.brewing=Brewing
 nei.recipe.profiler.crafting=Crafting Profiling
 nei.recipe.profiler.usage=Usage Profiling
+
+nei.options.inventory.showSubsetsWidget=Show Subsets Widget
+nei.options.inventory.showSubsetsWidget.true=Yes
+nei.options.inventory.showSubsetsWidget.false=No
+nei.options.inventory.showItemQuantityWidget=Show Item Quantity Widget
+nei.options.inventory.showItemQuantityWidget.true=Yes
+nei.options.inventory.showItemQuantityWidget.false=No

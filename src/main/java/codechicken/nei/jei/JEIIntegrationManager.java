@@ -85,7 +85,10 @@ public final class JEIIntegrationManager {
             return;
         }
 
-        subsetVisibility.update(MC.world != null && NEIClientConfig.isEnabled());
+        subsetVisibility.update(
+                MC.world != null && NEIClientConfig.isEnabled()
+                && NEIClientConfig.getBooleanSetting("inventory.showSubsetsWidget")
+        );
 
         GuiScreen gui = MC.currentScreen;
         Set<Rectangle> areas = gui instanceof GuiContainer && LayoutManager.instance() != null

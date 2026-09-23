@@ -75,6 +75,11 @@ public class ContainerEventHandler {
     }
 
     private void preventScrollingBehindSubsets(MouseInputEvent.Pre event, Point mouse) {
+
+        if(!NEIClientConfig.getBooleanSetting("inventory.showSubsetsWidget")) {
+            return;
+        }
+
         int wheel = Mouse.getEventDWheel();
 
         // Prevent scroll when subsets are open
@@ -83,6 +88,7 @@ public class ContainerEventHandler {
         ) {
             event.setCanceled(true);
         }
+
     }
 
     private void handleSearchHighlight(Point mouse) {
@@ -107,6 +113,10 @@ public class ContainerEventHandler {
     }
 
     private void handleQuantityClick(MouseInputEvent.Pre event) {
+
+        if(!NEIClientConfig.getBooleanSetting("inventory.showItemQuantityWidget")) {
+            return;
+        }
 
         if(NEIClientConfig.getItemQuantity() <= 0 || !Config.isCheatItemsEnabled() || Config.isEditModeEnabled()) {
             return;

@@ -95,6 +95,12 @@ public class NEIClientConfig {
             }
         });
 
+        tag.getTag("inventory.showSubsetsWidget").getBooleanValue(true);
+        API.addOption(new OptionToggleButton("inventory.showSubsetsWidget", true));
+
+        tag.getTag("inventory.showItemQuantityWidget").getBooleanValue(true);
+        API.addOption(new OptionToggleButton("inventory.showItemQuantityWidget", true));
+
         tag.getTag("world.highlight_tips").getBooleanValue(false);
         tag.getTag("world.highlight_tips.x").getIntValue(5000);
         tag.getTag("world.highlight_tips.y").getIntValue(100);
