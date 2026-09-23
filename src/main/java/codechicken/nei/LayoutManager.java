@@ -26,6 +26,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import org.lwjgl.opengl.GL11;
@@ -228,22 +229,28 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
     }
 
     @Override
-    public void handleItemDisplayName(GuiScreen gui, ItemStack stack, List<String> currenttip) {
-        //TODO, Implement this in a cleaner way.
-//        String overridename = ItemInfo.getNameOverride(stack);
-//        if (overridename != null) {
-//            currenttip.set(0, overridename);
-//        }
-//
-//        String mainname = currenttip.get(0);
-//        if (showIDs()) {
-//            mainname += " " + Item.getIdFromItem(stack.getItem());
-//            if (stack.getItemDamage() != 0) {
-//                mainname += ":" + stack.getItemDamage();
-//            }
-//
-//            currenttip.set(0, mainname);
-//        }
+    public void handleItemDisplayName(GuiScreen gui, ItemStack stack, List<String> tooltip) {
+
+        if(!NEIClientConfig.showIDs()) {
+            return;
+        }
+
+        if(Minecraft.getMinecraft().gameSettings.advancedItemTooltips) {
+            return;
+        }
+
+        if(stack.isEmpty() || tooltip.isEmpty()) {
+            return;
+        }
+
+        String id = Integer.toString(Item.getIdFromItem(stack.getItem()));
+
+        if(stack.getItemDamage() != 0) {
+            id += ":" + stack.getItemDamage();
+        }
+
+        tooltip.set(0, tooltip.get(0) + " " + id);
+
     }
 
     public static void layout(GuiContainer gui) {
