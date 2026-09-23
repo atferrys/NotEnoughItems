@@ -16,7 +16,6 @@ import codechicken.nei.handler.NEIClientEventHandler;
 import codechicken.nei.jei.JEIIntegrationManager;
 import codechicken.nei.layout.LayoutStyle;
 import codechicken.nei.network.NEIClientPacketHandler;
-import codechicken.nei.util.ItemList;
 import codechicken.nei.util.helper.GuiHelper;
 import codechicken.nei.widget.*;
 import codechicken.nei.widget.Button;
@@ -570,8 +569,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
     public void load(GuiContainer gui) {
         if (isEnabled()) {
             setInputFocused(null);
-
-            ItemList.refresh();
 
             LAYOUT_STYLE.init();
             layout(gui);

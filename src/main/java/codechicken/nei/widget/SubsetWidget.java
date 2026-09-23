@@ -702,6 +702,9 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
             if (System.currentTimeMillis() - lastclicktime < 500) {
                 unhideAll();
             } else {
+                if(!root.isVisible()) {
+                    ItemList.refresh();
+                }
                 root.setVisible();
             }
 

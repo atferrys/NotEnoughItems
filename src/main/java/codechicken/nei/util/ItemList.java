@@ -77,7 +77,7 @@ public class ItemList {
 
         List<ItemStack> registered = JEIIntegrationManager.getSubsetItems();
 
-        if(items.equals(registered)) {
+        if(sameItems(items, registered)) {
             return;
         }
 
@@ -90,6 +90,22 @@ public class ItemList {
         }
 
         JEIIntegrationManager.refreshItemVisibility();
+
+    }
+
+    private static boolean sameItems(List<ItemStack> previous, List<ItemStack> current) {
+
+        if(previous.size() != current.size()) {
+            return false;
+        }
+
+        for(int i = 0; i < previous.size(); i++) {
+            if(!ItemStack.areItemStacksEqual(previous.get(i), current.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
 
     }
 
