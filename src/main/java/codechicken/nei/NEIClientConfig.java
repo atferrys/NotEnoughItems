@@ -101,6 +101,9 @@ public class NEIClientConfig {
         tag.getTag("inventory.showItemQuantityWidget").getBooleanValue(true);
         API.addOption(new OptionToggleButton("inventory.showItemQuantityWidget", true));
 
+        tag.getTag("inventory.showSavesWidget").getBooleanValue(true);
+        API.addOption(new OptionToggleButton("inventory.showSavesWidget", true));
+
         tag.getTag("world.highlight_tips").getBooleanValue(false);
         tag.getTag("world.highlight_tips.x").getIntValue(5000);
         tag.getTag("world.highlight_tips.y").getIntValue(100);

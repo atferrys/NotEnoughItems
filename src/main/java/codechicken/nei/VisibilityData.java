@@ -18,7 +18,8 @@ public class VisibilityData {
         }
 
         showSubsets = showSubsets && NEIClientConfig.getBooleanSetting("inventory.showSubsetsWidget");
-        showQuantity = showSubsets && NEIClientConfig.getBooleanSetting("inventory.showItemQuantityWidget");
+        showQuantity = showQuantity && NEIClientConfig.getBooleanSetting("inventory.showItemQuantityWidget");
+        showStateButtons = showStateButtons && NEIClientConfig.getBooleanSetting("inventory.showSavesWidget");
 
         if(!showWidgets) {
             showSubsets = false;

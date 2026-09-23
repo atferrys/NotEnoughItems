@@ -176,3 +176,6 @@ nei.options.inventory.showSubsetsWidget.false=No
 nei.options.inventory.showItemQuantityWidget=Show Item Quantity Widget
 nei.options.inventory.showItemQuantityWidget.true=Yes
 nei.options.inventory.showItemQuantityWidget.false=No
+nei.options.inventory.showSavesWidget=Show Saves Widget
+nei.options.inventory.showSavesWidget.true=Yes
+nei.options.inventory.showSavesWidget.false=No
