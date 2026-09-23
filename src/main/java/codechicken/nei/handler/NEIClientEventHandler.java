@@ -14,6 +14,7 @@ import codechicken.nei.util.helper.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
@@ -139,6 +140,13 @@ public class NEIClientEventHandler {
                             event.setCanceled(true);
                             return;
                         }
+                    }
+                }
+
+                if(gui instanceof GuiContainerCreative) {
+                    GuiContainerCreative creative = (GuiContainerCreative) gui;
+                    if(creative.searchField != null && creative.searchField.getVisible() && creative.searchField.isFocused()) {
+                        return;
                     }
                 }
 
