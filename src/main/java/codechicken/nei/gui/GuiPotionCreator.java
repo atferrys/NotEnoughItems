@@ -43,6 +43,13 @@ public class GuiPotionCreator extends GuiContainerWidget {
         }
 
         @Override
+        public void mouseScrolled(int mouseX, int mouseY, int direction) {
+            if(contains(mouseX - guiLeft, mouseY - guiTop) && hasScrollbar()) {
+                scroll(-direction);
+            }
+        }
+
+        @Override
         public void drawBackground(float frame) {
             super.drawBackground(frame);
             drawRect(x, y, x + width, y + height, 0xFF000000);
