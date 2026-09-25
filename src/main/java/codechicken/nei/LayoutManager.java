@@ -57,8 +57,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
 
     public static SubsetWidget dropDown;
 
-    public static Button options;
-
     public static Button more;
     public static Button less;
     public static ItemQuantityField quantity;
@@ -103,7 +101,7 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
         }
 
         if (!isEnabled()) {
-            return options.contains(mouseX, mouseY) && options.handleClick(mouseX, mouseY, button);
+            return false;
         }
 
         for (Widget widget : controlWidgets) {
@@ -201,8 +199,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
                 for (Widget widget : drawWidgets) {
                     widget.draw(mousex, mousey);
                 }
-            } else {
-                options.draw(mousex, mousey);
             }
 
             GlStateManager.enableLighting();
@@ -305,21 +301,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
     private static void init() {
         dropDown = new SubsetWidget();
 
-        options = new Button("Options") {
-            @Override
-            public boolean onButtonPress(boolean rightclick) {
-                if (!rightclick) {
-                    getOptionList().openGui(getGuiContainer(), false);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public String getRenderLabel() {
-                return translate("inventory.options");
-            }
-        };
         more = new Button("+") {
             @Override
             public boolean onButtonPress(boolean rightclick) {
@@ -613,7 +594,6 @@ public class LayoutManager implements IInputHandler, IContainerTooltipHandler, I
             return;
         }
 
-        newWidgets.add(options);
         if (visiblity.showQuantity) {
             if (canPerformAction("item")) {
                 newWidgets.add(more);

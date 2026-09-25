@@ -122,11 +122,6 @@ public final class LayoutStyle {
         quantity.w = more.x - quantity.x - 2;
         quantity.h = less.h;
 
-        options.x = isEnabled() ? 0 : 6;
-        options.y = isEnabled() ? windowHeight - 22 : windowHeight - 28;
-        options.w = 80;
-        options.h = 22;
-
         delete.state = 0x4;
         if (NEIController.getDeleteMode()) {
             delete.state |= 1;

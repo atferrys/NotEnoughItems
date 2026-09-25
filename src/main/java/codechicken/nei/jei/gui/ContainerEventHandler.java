@@ -6,11 +6,13 @@ import codechicken.nei.NEIClientConfig;
 import codechicken.nei.jei.JEIIntegrationManager;
 import codechicken.nei.util.NEIClientUtils;
 import mezz.jei.config.Config;
+import mezz.jei.config.JEIModConfigGui;
 import mezz.jei.input.GuiTextFieldFilter;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.fml.client.config.DummyConfigElement.DummyCategoryElement;
 import net.minecraftforge.client.event.GuiScreenEvent.BackgroundDrawnEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -38,7 +40,20 @@ public class ContainerEventHandler {
 
     @SubscribeEvent
     public void onGuiOpen(GuiOpenEvent event) {
+
         pendingQuantityReleaseGui = null;
+
+        // Add NEI config button in JEI config screen
+        if(event.getGui() instanceof JEIModConfigGui) {
+
+            JEIModConfigGui screen = (JEIModConfigGui) event.getGui();
+
+            if(screen.configElements.stream().noneMatch(element -> element.getConfigEntryClass() == NEIOptionsEntry.class)) {
+                screen.configElements.add(new DummyCategoryElement("neiOptions", "nei.options", NEIOptionsEntry.class));
+            }
+
+        }
+
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)

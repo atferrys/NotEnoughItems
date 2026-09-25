@@ -44,6 +44,7 @@ nei.chat.time=Day %d. %d:00
 nei.chat.give.noitem=No such item.
 
 nei.options=NEI Options
+nei.options.tooltip=Open Not Enough Items settings.
 nei.options.back=Back
 nei.options.world=World
 nei.options.global=Global
