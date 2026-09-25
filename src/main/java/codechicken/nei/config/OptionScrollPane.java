@@ -62,12 +62,12 @@ public abstract class OptionScrollPane extends GuiScrollPane {
         GlStateManager.color(1, 1, 1, 1);
         Minecraft.getMinecraft().renderEngine.bindTexture(Gui.OPTIONS_BACKGROUND);
         CCRenderState ccrs = CCRenderState.instance();
-        BufferBuilder buffer = ccrs.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        BufferBuilder buffer = ccrs.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-        buffer.pos(x, y, zLevel).tex(0, 0).endVertex();
-        buffer.pos(x, y + h, zLevel).tex(0, h / 16D).endVertex();
-        buffer.pos(x + w, y + h, zLevel).tex(w / 16D, h / 16D).endVertex();
-        buffer.pos(x + w, y, zLevel).tex(w / 16D, 0).endVertex();
+        buffer.pos(x, y, zLevel).tex(x / 32D, y / 32D).color(64, 64, 64, 255).endVertex();
+        buffer.pos(x, y + h, zLevel).tex(x / 32D, (y + h) / 32D).color(64, 64, 64, 255).endVertex();
+        buffer.pos(x + w, y + h, zLevel).tex((x + w) / 32D, (y + h) / 32D).color(64, 64, 64, 255).endVertex();
+        buffer.pos(x + w, y, zLevel).tex((x + w) / 32D, y / 32D).color(64, 64, 64, 255).endVertex();
         ccrs.draw();
     }
 
