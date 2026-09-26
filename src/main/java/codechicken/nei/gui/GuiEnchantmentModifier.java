@@ -15,8 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static codechicken.nei.util.NEIClientUtils.translate;
 
@@ -46,11 +45,9 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
         TextureUtils.changeTexture("textures/gui/container/enchanting_table.png");
         drawTexturedModalRect(0, 0, 0, 0, xSize, ySize);
 
-
         String levelstring = Integer.toString(level);
         fontRenderer.drawString(levelstring, 33 - fontRenderer.getStringWidth(levelstring) / 2, 34, 0xFF606060);
     }
-
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -84,15 +81,22 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
 
     @Override
     public void actionPerformed(String ident, Object... params) {
-        if(ident.equals("levelDown")) {
-            level = Math.max(1, level - 1);
-        } else if(ident.equals("levelUp")) {
-            level = Math.min(10, level + 1);
-        } else if(ident.equals("validation")) {
-            toggleEnchantmentValidation();
-            refreshEnchantments();
+
+        switch(ident) {
+            case "levelDown":
+                level = Math.max(1, level - 1);
+                break;
+            case "levelUp":
+                level = Math.min(10, level + 1);
+                break;
+            case "validation":
+                toggleEnchantmentValidation();
+                refreshEnchantments();
+                break;
         }
+
         updateLevelButtons();
+
     }
 
     private void updateLevelButtons() {
@@ -109,13 +113,17 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
 
     @Override
     public void updateScreen() {
+
         super.updateScreen();
+
         if(!ItemStack.areItemStacksEqual(lastStack, inventorySlots.getSlot(0).getStack()) || lastValidation != validateEnchantments()) {
             refreshEnchantments();
         }
+
     }
 
     private static class EnchantmentOption {
+
         private final Enchantment enchantment;
         private final int state;
         private final int appliedLevel;
@@ -125,9 +133,17 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
             this.state = state;
             this.appliedLevel = appliedLevel;
         }
+
     }
 
     public class GuiSlotEnchantments extends GuiScrollSlot {
+
+        private final LinkedHashMap<String, String> ENCHANTMENT_SHORTHANDS = new LinkedHashMap<String, String>() {{
+            put("Projectile", "Proj");
+            put("Protection", "Protect");
+            put("Bane of ", "");
+        }};
+
         private final List<EnchantmentOption> options = new ArrayList<>();
 
         public GuiSlotEnchantments() {
@@ -202,34 +218,64 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
 
         @Override
         protected void drawSlot(int slot, int x, int y, int mx, int my, float frame) {
+
             EnchantmentOption option = options.get(slot);
             int width = windowBounds().width;
             drawEntryBackground(x, y, width, option.state);
+
             String text = option.enchantment.getTranslatedName(option.appliedLevel == -1 ? level : option.appliedLevel);
-            if(fontRenderer.getStringWidth(text) > width - 6) text = text.replace("Projectile", "Proj");
-            if(fontRenderer.getStringWidth(text) > width - 6) text = text.replace("Protection", "Protect");
-            if(fontRenderer.getStringWidth(text) > width - 6) text = text.replace("Bane of ", "");
+
+            for(Map.Entry<String, String> shorthands : ENCHANTMENT_SHORTHANDS.entrySet()) {
+                if(text.contains(shorthands.getKey())) {
+                    text = text.replace(shorthands.getKey(), shorthands.getValue());
+                    break;
+                }
+            }
+
+            int availableWidth = width - 6;
+
+            if(fontRenderer.getStringWidth(text) > availableWidth) {
+                text = fontRenderer.trimStringToWidth(
+                        text,
+                        availableWidth - fontRenderer.getStringWidth("...")
+                );
+                text += "...";
+            }
+
             int colour = option.state == 0 ? 0x685e4a : option.state == 1 ? 0x407f10 : 0xffff80;
             fontRenderer.drawString(text, x + 4, y + 5, colour);
+
         }
 
         @Override
         protected void slotClicked(int slot, int button, int mx, int my, int count) {
+
             EnchantmentOption option = options.get(slot);
+
             if(option.state != 1) {
                 boolean add = option.state != 2;
                 NEIClientPacketHandler.sendModifyEnchantment(option.enchantment, add ? level : 0, add);
             }
+
         }
 
         public void refresh(ItemStack stack, boolean validate) {
+
             int oldSize = options.size();
             options.clear();
+
             if(!stack.isEmpty() && (!validate || stack.getItem().getItemEnchantability(stack) != 0)) {
+
                 for(Enchantment enchantment : Enchantment.REGISTRY) {
-                    if(enchantment == null || enchantment.type == null || (validate && !enchantment.type.canEnchantItem(stack.getItem()))) {
+
+                    if(enchantment == null || enchantment.type == null) {
                         continue;
                     }
+
+                    if(validate && !enchantment.type.canEnchantItem(stack.getItem())) {
+                        continue;
+                    }
+
                     int state = 0;
                     int appliedLevel = -1;
 
@@ -239,13 +285,21 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
                     } else if(validate && NEIServerUtils.doesEnchantmentConflict(NEIServerUtils.getEnchantments(stack).keySet(), enchantment)) {
                         state = 1;
                     }
+
                     options.add(new EnchantmentOption(enchantment, state, appliedLevel));
+
                 }
+
             }
+
             setMargins(0, 0, options.size() > 3 ? 7 : 0, 0);
+
             if(oldSize != options.size()) {
                 percentscrolled = 0;
             }
+
         }
+
     }
+
 }
