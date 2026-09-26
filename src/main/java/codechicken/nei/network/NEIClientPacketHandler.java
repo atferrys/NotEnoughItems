@@ -20,6 +20,7 @@ import codechicken.nei.util.NEIServerUtils;
 import codechicken.nei.widget.action.NEIActions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.util.math.BlockPos;
@@ -285,13 +286,13 @@ public class NEIClientPacketHandler implements IClientPacketHandler {
     /**
      * Notifies the server about an enchantment being modified inside NEI's enchantment gui.
      *
-     * @param enchID The Enchantment ID.
+     * @param enchantment The Enchantment.
      * @param level  The Enchantments level.
      * @param add    If the enchantment is being added or removed.
      */
-    public static void sendModifyEnchantment(int enchID, int level, boolean add) {
+    public static void sendModifyEnchantment(Enchantment enchantment, int level, boolean add) {
         PacketCustom packet = new PacketCustom(channel, 22);
-        packet.writeByte(enchID);
+        packet.writeString(enchantment.getRegistryName().toString());
         packet.writeByte(level);
         packet.writeBoolean(add);
         packet.sendToServer();

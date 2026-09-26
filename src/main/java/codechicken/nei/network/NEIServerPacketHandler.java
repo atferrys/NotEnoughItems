@@ -87,7 +87,7 @@ public class NEIServerPacketHandler implements IServerPacketHandler {
                 openEnchantmentGui(sender);
                 break;
             case 22:
-                modifyEnchantment(sender, packet.readUByte(), packet.readUByte(), packet.readBoolean());
+                modifyEnchantment(sender, packet.readString(), packet.readUByte(), packet.readBoolean());
                 break;
             case 23:
                 processCreativeInv(sender, packet.readBoolean());
@@ -171,14 +171,20 @@ public class NEIServerPacketHandler implements IServerPacketHandler {
         }
     }
 
-    @Deprecated
-    private void modifyEnchantment(EntityPlayerMP player, int e, int lvl, boolean add) {
-        ContainerEnchantmentModifier containerem = (ContainerEnchantmentModifier) player.openContainer;
-        if (add) {
-            containerem.addEnchantment(e, lvl);
-        } else {
-            containerem.removeEnchantment(e);
+    private void modifyEnchantment(EntityPlayerMP player, String enchantmentName, int lvl, boolean add) {
+
+        if(!(player.openContainer instanceof ContainerEnchantmentModifier)) {
+            return;
         }
+
+        ContainerEnchantmentModifier container = (ContainerEnchantmentModifier) player.openContainer;
+
+        if(add) {
+            container.addEnchantment(enchantmentName, lvl);
+        } else {
+            container.removeEnchantment(enchantmentName);
+        }
+
     }
 
     private void openEnchantmentGui(EntityPlayerMP player) {

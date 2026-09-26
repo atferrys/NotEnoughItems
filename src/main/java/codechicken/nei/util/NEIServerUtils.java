@@ -32,9 +32,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipException;
 
 public class NEIServerUtils {
@@ -321,50 +319,62 @@ public class NEIServerUtils {
         playerSave.setDirty();
     }
 
-    public static List<int[]> getEnchantments(ItemStack itemstack) {
-        ArrayList<int[]> arraylist = new ArrayList<>();
-        if (!itemstack.isEmpty()) {
-            NBTTagList nbttaglist = itemstack.getEnchantmentTagList();
-            if (nbttaglist != null) {
-                for (int i = 0; i < nbttaglist.tagCount(); i++) {
-                    NBTTagCompound tag = nbttaglist.getCompoundTagAt(i);
-                    arraylist.add(new int[] { tag.getShort("id"), tag.getShort("lvl") });
-                }
-            }
+    public static LinkedHashMap<Enchantment, Short> getEnchantments(ItemStack itemStack) {
+
+        LinkedHashMap<Enchantment, Short> enchantments = new LinkedHashMap<>();
+
+        if(itemStack.isEmpty()) {
+            return enchantments;
         }
-        return arraylist;
+
+        NBTTagList enchantmentList = itemStack.getEnchantmentTagList();
+
+        for(int i = 0; i < enchantmentList.tagCount(); i++) {
+            NBTTagCompound enchantmentTag = enchantmentList.getCompoundTagAt(i);
+            enchantments.put(
+                    Enchantment.getEnchantmentByID(enchantmentTag.getShort("id")),
+                    enchantmentTag.getShort("lvl")
+            );
+        }
+
+        return enchantments;
+
     }
 
-    public static boolean stackHasEnchantment(ItemStack itemstack, int e) {
-        List<int[]> allenchantments = getEnchantments(itemstack);
-        for (int[] ai : allenchantments) {
-            if (ai[0] == e) {
+    public static boolean stackHasEnchantment(ItemStack itemStack, Enchantment enchantment) {
+
+        for(Enchantment itemEnchantment : getEnchantments(itemStack).keySet()) {
+            if(itemEnchantment.equals(enchantment)) {
                 return true;
             }
         }
 
         return false;
+
     }
 
-    public static int getEnchantmentLevel(ItemStack itemstack, int e) {
-        List<int[]> allenchantments = getEnchantments(itemstack);
-        for (int[] ai : allenchantments) {
-            if (ai[0] == e) {
-                return ai[1];
+    public static short getEnchantmentLevel(ItemStack itemStack, Enchantment enchantment) {
+
+        for(Map.Entry<Enchantment, Short> enchantmentEntry : getEnchantments(itemStack).entrySet()) {
+            if(enchantmentEntry.getKey().equals(enchantment)) {
+                return enchantmentEntry.getValue();
             }
         }
 
         return -1;
+
     }
 
-    public static boolean doesEnchantmentConflict(List<int[]> enchantments, Enchantment enchantment) {
-        for (int[] ai : enchantments) {
-            if (!enchantment.isCompatibleWith(Enchantment.getEnchantmentByID(ai[0]))) {
+    public static boolean doesEnchantmentConflict(Collection<Enchantment> enchantments, Enchantment enchantment) {
+
+        for(Enchantment itemEnchantment : enchantments) {
+            if(!itemEnchantment.isCompatibleWith(enchantment)) {
                 return true;
             }
         }
 
         return false;
+
     }
 
     public static List<Integer> getRange(final int start, final int end) {

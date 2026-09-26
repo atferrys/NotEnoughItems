@@ -5,9 +5,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ContainerEnchantment;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public class ContainerEnchantmentModifier extends ContainerEnchantment {
 
@@ -15,43 +18,64 @@ public class ContainerEnchantmentModifier extends ContainerEnchantment {
         super(inventoryplayer, world, new BlockPos(0, 0, 0));
     }
 
-    @Deprecated
-    public boolean addEnchantment(int e, int level) {
-        return addEnchantment(Enchantment.REGISTRY.getNameForObject(Enchantment.getEnchantmentByID(e)).toString(), level);
-    }
+    public void addEnchantment(String enchantmentLocation, int level) {
 
-    public boolean addEnchantment(String enchantmentLocation, int level) {
         Enchantment enchantment = Enchantment.getEnchantmentByLocation(enchantmentLocation);
-        if (enchantment != null) {
+
+        if(enchantment != null && !getSlot(0).getStack().isEmpty() && level > 0) {
             inventorySlots.get(0).getStack().addEnchantment(enchantment, level);
-            return true;
         }
-        return false;
+
     }
 
-    @Deprecated
-    //TODO String variant.
-    public void removeEnchantment(int e) {
+    public void removeEnchantment(String enchantmentLocation) {
+
+        Enchantment enchantment = Enchantment.getEnchantmentByLocation(enchantmentLocation);
+
+        if(enchantment == null) {
+            return;
+        }
+
         ItemStack stack = inventorySlots.get(0).getStack();
-        NBTTagList nbttaglist = stack.getEnchantmentTagList();
-        if (nbttaglist != null) {
-            for (int i = 0; i < nbttaglist.tagCount(); i++) {
-                int ID = nbttaglist.getCompoundTagAt(i).getShort("id");
-                if (ID == e) {
-                    nbttaglist.removeTag(i);
-                    if (nbttaglist.tagCount() == 0) {
-                        stack.getTagCompound().removeTag("ench");
-                    }
-                    if (stack.getTagCompound().isEmpty()) {
-                        stack.setTagCompound(null);
-                    }
-                    return;
-                }
-            }
+
+        if(stack.isEmpty()) {
+            return;
         }
+
+        // 1.12 still stored numeric IDs in the item NBT
+        int enchantmentId = Enchantment.getEnchantmentID(enchantment);
+        NBTTagList enchantmentList = stack.getEnchantmentTagList();
+
+        for(int i = 0; i < enchantmentList.tagCount(); i++) {
+
+            if(enchantmentList.getCompoundTagAt(i).getShort("id") != enchantmentId) {
+                continue;
+            }
+
+            enchantmentList.removeTag(i);
+
+            NBTTagCompound stackCompound = stack.getTagCompound();
+
+            if(stackCompound == null) {
+                break;
+            }
+
+            if(enchantmentList.tagCount() == 0) {
+                stackCompound.removeTag("ench");
+            }
+
+            if(stackCompound.isEmpty()) {
+                stack.setTagCompound(null);
+            }
+
+            break;
+
+        }
+
     }
 
-    public boolean canInteractWith(EntityPlayer entityplayer) {
+    @Override
+    public boolean canInteractWith(@Nonnull EntityPlayer entityPlayer) {
         return true;
     }
 

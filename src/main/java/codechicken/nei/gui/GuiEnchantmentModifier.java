@@ -218,7 +218,7 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
             EnchantmentOption option = options.get(slot);
             if(option.state != 1) {
                 boolean add = option.state != 2;
-                NEIClientPacketHandler.sendModifyEnchantment(Enchantment.getEnchantmentID(option.enchantment), add ? level : 0, add);
+                NEIClientPacketHandler.sendModifyEnchantment(option.enchantment, add ? level : 0, add);
             }
         }
 
@@ -232,11 +232,11 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
                     }
                     int state = 0;
                     int appliedLevel = -1;
-                    int id = Enchantment.getEnchantmentID(enchantment);
-                    if(NEIServerUtils.stackHasEnchantment(stack, id)) {
+
+                    if(NEIServerUtils.stackHasEnchantment(stack, enchantment)) {
                         state = 2;
-                        appliedLevel = NEIServerUtils.getEnchantmentLevel(stack, id);
-                    } else if(validate && NEIServerUtils.doesEnchantmentConflict(NEIServerUtils.getEnchantments(stack), enchantment)) {
+                        appliedLevel = NEIServerUtils.getEnchantmentLevel(stack, enchantment);
+                    } else if(validate && NEIServerUtils.doesEnchantmentConflict(NEIServerUtils.getEnchantments(stack).keySet(), enchantment)) {
                         state = 1;
                     }
                     options.add(new EnchantmentOption(enchantment, state, appliedLevel));
