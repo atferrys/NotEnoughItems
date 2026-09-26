@@ -164,6 +164,13 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
         }
 
         @Override
+        public void mouseScrolled(int mouseX, int mouseY, int direction) {
+            if(contains(mouseX - guiLeft, mouseY - guiTop) && hasScrollbar()) {
+                scroll(-direction);
+            }
+        }
+
+        @Override
         public void drawBackground(float frame) {
             drawRect(x, y, x + width, y + height, 0xFF202020);
             for(int row = 0; row < 3; row++) {
