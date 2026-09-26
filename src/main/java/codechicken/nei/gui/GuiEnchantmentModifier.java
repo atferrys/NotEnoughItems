@@ -159,6 +159,13 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
         }
 
         @Override
+        public void drawScrollbar(float frame) {
+            if(hasScrollbar()) {
+                super.drawScrollbar(frame);
+            }
+        }
+
+        @Override
         public void drawOverlay(float frame) {
 
         }
@@ -179,10 +186,18 @@ public class GuiEnchantmentModifier extends GuiContainerWidget {
         }
 
         private void drawEntryBackground(int x, int y, int width, int state) {
+
             TextureUtils.changeTexture("textures/gui/container/enchanting_table.png");
             GlStateManager.color(1, 1, 1, 1);
+
+            if(!hasScrollbar()) {
+                drawTexturedModalRect(x, y, 0, 166 + 19 * state, width, 19);
+                return;
+            }
+
             drawTexturedModalRect(x, y, 0, 166 + 19 * state, width - 30, 19);
             drawTexturedModalRect(x + width - 30, y, width - 23, 166 + 19 * state, 30, 19);
+
         }
 
         @Override
