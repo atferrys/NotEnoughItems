@@ -8,272 +8,24 @@ import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.FontUtils;
 import codechicken.nei.container.ContainerPotionCreator;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.text.translation.I18n;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class GuiPotionCreator extends GuiContainerWidget {
 
-    public class GuiSlotPotionEffects extends GuiScrollSlot {
-
-        public int selectedslot = -1;
-        public boolean enabled = true;
-        private ArrayList<Potion> validPotions = new ArrayList<>();
-
-        public GuiSlotPotionEffects(int x, int y) {
-            super(x, y, 108, 76);
-            for (Potion p : Potion.REGISTRY) {
-                if (p != null) {
-                    validPotions.add(p);
-                }
-            }
-            setSmoothScroll(false);
-            setMargins(0, 0, 0, 0);
-        }
-
-        @Override
-        public int getSlotHeight(int slot) {
-            return 19;
-        }
-
-        @Override
-        public void mouseScrolled(int mouseX, int mouseY, int direction) {
-            if(contains(mouseX - guiLeft, mouseY - guiTop) && hasScrollbar()) {
-                scroll(-direction);
-            }
-        }
-
-        @Override
-        public void drawBackground(float frame) {
-            super.drawBackground(frame);
-            drawRect(x, y, x + width, y + height, 0xFF000000);
-        }
-
-        @Override
-        public void drawOverlay(float frame) {
-        }
-
-        @Override
-        public int scrollbarGuideAlignment() {
-            return 0;
-        }
-
-        @Override
-        public Dimension scrollbarDim() {
-            Dimension dim = super.scrollbarDim();
-            dim.width = 7;
-            return dim;
-        }
-
-        @Override
-        protected void drawSlot(int slot, int x, int y, int mx, int my, float frame) {
-            GlStateManager.color(1, 1, 1, 1);
-            Potion potion = validPotions.get(slot);
-            PotionEffect effect = getEffect(potion);
-            boolean blank = effect == null;
-            if (effect == null) {
-                effect = new PotionEffect(potion, 1200, 0);
-            }
-            int shade = selectedslot == slot ? 2 : blank ? 1 : 0;
-
-            TextureUtils.changeTexture("textures/gui/container/enchanting_table.png");
-            drawTexturedModalRect(x, y, 0, 166 + getSlotHeight(slot) * shade, width - 30, getSlotHeight(slot));
-            drawTexturedModalRect(x + width - 30, y, width - 23, 166 + getSlotHeight(slot) * shade, 30, getSlotHeight(slot));
-
-            if (potion.hasStatusIcon()) {
-                TextureUtils.changeTexture("textures/gui/container/inventory.png");
-                int icon = potion.getStatusIconIndex();
-                drawTexturedModalRect(x + 1, y + 1, icon % 8 * 18, 198 + icon / 8 * 18, 18, 18);
-            }
-
-            String name = I18n.translateToLocal(potion.getName());
-            String amp = effect.getAmplifier() > 0 ? " " + translateAmplifier(effect.getAmplifier()) : "";
-            int textColour = shade == 0 ? 0x685e4a : shade == 1 ? 0x407f10 : 0xffff80;
-            if (fontRenderer.getStringWidth(name + amp) < width - 20) {
-                fontRenderer.drawString(name + amp, x + 20, y + 1, textColour);
-            } else {
-                fontRenderer.drawString(name, x + 20, y + 1, textColour);
-                FontUtils.drawRightString(amp, x + width - 10, y + 10, textColour);
-            }
-
-            String duration = Potion.getPotionDurationString(effect, 1.0F);
-            textColour = shade == 0 ? 0xA0A0A0 : shade == 1 ? 0x808080 : 0xCCCCCC;
-            fontRenderer.drawStringWithShadow(duration, x + 20, y + 10, textColour);
-        }
-
-        private PotionEffect getEffect(Potion potion) {
-            ItemStack potionStack = container.potionInv.getStackInSlot(0);
-            if (!potionStack.isEmpty() && potionStack.hasTagCompound() && potionStack.getTagCompound().hasKey("CustomPotionEffects")) {
-                NBTTagList potionTagList = potionStack.getTagCompound().getTagList("CustomPotionEffects", 10);
-                for (int i = 0; i < potionTagList.tagCount(); i++) {
-                    PotionEffect effect = PotionEffect.readCustomPotionEffectFromNBT(potionTagList.getCompoundTagAt(i));
-                    if (effect.getPotion() == potion) {
-                        return effect;
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected int getNumSlots() {
-            return validPotions.size();
-        }
-
-        @Override
-        protected void slotClicked(int slot, int button, int mx, int my, int count) {
-            if (!enabled) {
-                return;
-            }
-
-            if (button == 0) {
-                select(slot);
-                applyEffect();
-            } else if (button == 1) {
-                deselect();
-                container.removePotionEffect(validPotions.get(slot));
-            }
-        }
-
-        public void selectNext() {
-            if (selectedslot >= 0 && selectedslot + 1 < getNumSlots()) {
-                select(selectedslot + 1);
-                showSlot(selectedslot);
-            }
-        }
-
-        public void selectPrev() {
-            if (selectedslot > 0) {
-                select(selectedslot - 1);
-                showSlot(selectedslot);
-            }
-        }
-
-        public void setEnabled(boolean b) {
-            if (b == enabled) {
-                return;
-            }
-            enabled = b;
-            if (!enabled) {
-                deselect();
-            }
-        }
-
-        private void select(int slot) {
-            selectedslot = slot;
-            durationField.setEnabled(true);
-            PotionEffect effect = getEffect(validPotions.get(slot));
-            if (effect == null) {
-                effect = new PotionEffect(validPotions.get(slot), 1200, 0);
-            }
-            durationField.setDurationTicks(effect.getDuration());
-            amplifier = effect.getAmplifier();
-            validateInputButtons();
-        }
-
-        private void deselect() {
-            selectedslot = -1;
-            durationField.setEnabled(false);
-            ampDown.setEnabled(false);
-            ampUp.setEnabled(false);
-        }
-
-        public Potion selectedPotion() {
-            return validPotions.get(selectedslot);
-        }
-    }
-
-    public class GuiDurationField extends GuiCCTextField {
-
-        private String baseValue;
-
-        public GuiDurationField(int x, int y, int width, int height) {
-            super(x, y, width, height, "100");
-            setMaxStringLength(4);
-            setAllowedCharacters("0123456789");
-            baseValue = getText();
-        }
-
-        public void setDurationTicks(int i) {
-            i /= 20;
-            String minutes = Integer.toString(i / 60);
-            String seconds = Integer.toString(i % 60);
-            if (seconds.length() == 1) {
-                seconds = '0' + seconds;
-            }
-            setText(minutes + seconds);
-        }
-
-        @Override
-        public void setEnabled(boolean b) {
-            super.setEnabled(b);
-            if (!isEnabled()) {
-                setText("100");
-            }
-        }
-
-        @Override
-        public void onFocusChanged() {
-            if (isFocused()) {
-                baseValue = getText();
-            } else {
-                if (!validateValue()) {
-                    setText(baseValue);
-                } else {
-                    applyEffect();
-                }
-            }
-        }
-
-        @Override
-        public void onTextChanged(String oldText) {
-            validateInputButtons();
-        }
-
-        private boolean validateValue() {
-            try {
-                int i = Integer.parseInt(getText());
-                return i > 1 && getDurationTicks() < Short.MAX_VALUE && i / 100 <= 60 && i % 100 < 60;
-            } catch (NumberFormatException nfe) {
-                return false;
-            }
-        }
-
-        @Override
-        public void drawText() {
-            String s = getText();
-            String seconds = s.substring(Math.max(0, s.length() - 2), Math.max(0, s.length() - 2) + Math.min(s.length(), 2));
-            String minutes = s.length() < 3 ? "" : s.substring(0, s.length() - 2);
-            int ty = y + height / 2 - 4;
-            int tcolour = getTextColour();
-            FontUtils.drawCenteredString(":", x + width / 2 + 1, ty, tcolour);
-            FontUtils.drawRightString(seconds, x + width - 3, ty, tcolour);
-            FontUtils.drawRightString(minutes, x + width / 2 - 1, ty, tcolour);
-        }
-
-        @Override
-        public int getTextColour() {
-            return isFocused() ? 0xCCCCCC : 0x909090;
-        }
-
-        public int getDurationTicks() {
-            int i = Integer.parseInt(getText());
-            return ((i / 100) * 60 + (i % 100)) * 20;
-        }
-    }
-
-    int amplifier = 0;
-    GuiCCButton ampDown;
-    GuiCCButton ampUp;
-    GuiSlotPotionEffects slotPotionEffects;
-    GuiDurationField durationField;
-    ContainerPotionCreator container;
+    private int amplifier = 0;
+    private GuiCCButton ampDown;
+    private GuiCCButton ampUp;
+    private GuiSlotPotionEffects slotPotionEffects;
+    private GuiDurationField durationField;
+    private final ContainerPotionCreator container;
 
     public GuiPotionCreator(InventoryPlayer inventoryplayer) {
         super(new ContainerPotionCreator(inventoryplayer, new ContainerPotionCreator.InventoryPotionStore()), 176, 208);
@@ -281,13 +33,13 @@ public class GuiPotionCreator extends GuiContainerWidget {
     }
 
     public void applyEffect() {
-        if (slotPotionEffects.selectedslot >= 0) {
+        if(slotPotionEffects.selectedSlot >= 0) {
             container.setPotionEffect(slotPotionEffects.selectedPotion(), durationField.getDurationTicks(), amplifier);
         }
     }
 
     public String translateAmplifier(int amplifier) {
-        switch (amplifier) {
+        switch(amplifier) {
             case 0:
                 return "I";
             case 1:
@@ -305,11 +57,6 @@ public class GuiPotionCreator extends GuiContainerWidget {
     public void validateInputButtons() {
         ampDown.setEnabled(amplifier > 0);
         ampUp.setEnabled(amplifier < 3);
-    }
-
-    @Override
-    protected void drawGuiContainerForegroundLayer(int par1, int par2) {
-        //fontRenderer.drawString("Potion", 12, 6, 0x404040);
     }
 
     @Override
@@ -346,12 +93,301 @@ public class GuiPotionCreator extends GuiContainerWidget {
 
     @Override
     public void actionPerformed(String ident, Object... params) {
-        if (ident.equals("ampDown")) {
+
+        if(ident.equals("ampDown")) {
             amplifier--;
-        } else if (ident.equals("ampUp")) {
+        } else if(ident.equals("ampUp")) {
             amplifier++;
         }
+
         applyEffect();
         validateInputButtons();
+
     }
+
+    public class GuiSlotPotionEffects extends GuiScrollSlot {
+
+        public int selectedSlot = -1;
+        public boolean enabled = true;
+        private final ArrayList<Potion> validPotions = new ArrayList<>();
+
+        public GuiSlotPotionEffects(int x, int y) {
+
+            super(x, y, 108, 76);
+
+            for(Potion potion : Potion.REGISTRY) {
+                if(potion != null) {
+                    validPotions.add(potion);
+                }
+            }
+
+            setSmoothScroll(false);
+            setMargins(0, 0, 0, 0);
+
+        }
+
+        @Override
+        public int getSlotHeight(int slot) {
+            return 19;
+        }
+
+        @Override
+        public void mouseScrolled(int mouseX, int mouseY, int direction) {
+            if(contains(mouseX - guiLeft, mouseY - guiTop) && hasScrollbar()) {
+                scroll(-direction);
+            }
+        }
+
+        @Override
+        public void drawBackground(float frame) {
+            super.drawBackground(frame);
+            drawRect(x, y, x + width, y + height, 0xFF000000);
+        }
+
+        @Override
+        public void drawOverlay(float frame) {
+
+        }
+
+        @Override
+        public int scrollbarGuideAlignment() {
+            return 0;
+        }
+
+        @Override
+        public Dimension scrollbarDim() {
+            Dimension dim = super.scrollbarDim();
+            dim.width = 7;
+            return dim;
+        }
+
+        @Override
+        protected void drawSlot(int slot, int x, int y, int mx, int my, float frame) {
+
+            GlStateManager.color(1, 1, 1, 1);
+            Potion potion = validPotions.get(slot);
+            PotionEffect effect = getEffect(potion);
+
+            boolean wasBlank = effect == null;
+
+            if(wasBlank) {
+                effect = new PotionEffect(potion, 1200, 0);
+            }
+
+            int shade = selectedSlot == slot ? 2 : wasBlank ? 1 : 0;
+
+            TextureUtils.changeTexture("textures/gui/container/enchanting_table.png");
+            drawTexturedModalRect(x, y, 0, 166 + getSlotHeight(slot) * shade, width - 30, getSlotHeight(slot));
+            drawTexturedModalRect(x + width - 30, y, width - 23, 166 + getSlotHeight(slot) * shade, 30, getSlotHeight(slot));
+
+            if(potion.hasStatusIcon()) {
+                TextureUtils.changeTexture("textures/gui/container/inventory.png");
+                int icon = potion.getStatusIconIndex();
+                drawTexturedModalRect(x + 1, y + 1, icon % 8 * 18, 198 + icon / 8 * 18, 18, 18);
+            }
+
+            String name = I18n.format(potion.getName());
+            String amp = effect.getAmplifier() > 0 ? " " + translateAmplifier(effect.getAmplifier()) : "";
+            int textColor = shade == 0 ? 0x685e4a : shade == 1 ? 0x407f10 : 0xffff80;
+            int availableWidth = width - 30;
+
+            if(fontRenderer.getStringWidth(name + amp) <= availableWidth) {
+                fontRenderer.drawString(name + amp, x + 20, y + 1, textColor);
+            } else {
+                if(fontRenderer.getStringWidth(name) > availableWidth) {
+                    name = fontRenderer.trimStringToWidth(
+                            name,
+                            availableWidth - fontRenderer.getStringWidth("...")
+                    );
+                    name += "...";
+                }
+                fontRenderer.drawString(name, x + 20, y + 1, textColor);
+                FontUtils.drawRightString(amp, x + width - 10, y + 10, textColor);
+            }
+
+            String duration = Potion.getPotionDurationString(effect, 1.0F);
+            textColor = shade == 0 ? 0xA0A0A0 : shade == 1 ? 0x808080 : 0xCCCCCC;
+            fontRenderer.drawStringWithShadow(duration, x + 20, y + 10, textColor);
+
+        }
+
+        private PotionEffect getEffect(Potion potion) {
+            ItemStack potionStack = container.potionInv.getStackInSlot(0);
+            if(!potionStack.isEmpty() && potionStack.hasTagCompound() && potionStack.getTagCompound().hasKey("CustomPotionEffects")) {
+                NBTTagList potionTagList = potionStack.getTagCompound().getTagList("CustomPotionEffects", 10);
+                for(int i = 0; i < potionTagList.tagCount(); i++) {
+                    PotionEffect effect = PotionEffect.readCustomPotionEffectFromNBT(potionTagList.getCompoundTagAt(i));
+                    if(effect.getPotion() == potion) {
+                        return effect;
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected int getNumSlots() {
+            return validPotions.size();
+        }
+
+        @Override
+        protected void slotClicked(int slot, int button, int mx, int my, int count) {
+
+            if(!enabled) {
+                return;
+            }
+
+            if(button == 0) {
+                select(slot);
+                applyEffect();
+            } else if(button == 1) {
+                deselect();
+                container.removePotionEffect(validPotions.get(slot));
+            }
+
+        }
+
+        public void selectNext() {
+            if(selectedSlot >= 0 && selectedSlot + 1 < getNumSlots()) {
+                select(selectedSlot + 1);
+                showSlot(selectedSlot);
+            }
+        }
+
+        public void selectPrev() {
+            if(selectedSlot > 0) {
+                select(selectedSlot - 1);
+                showSlot(selectedSlot);
+            }
+        }
+
+        public void setEnabled(boolean enabled) {
+
+            if(enabled == this.enabled) {
+                return;
+            }
+
+            this.enabled = enabled;
+
+            if(!this.enabled) {
+                deselect();
+            }
+
+        }
+
+        private void select(int slot) {
+
+            selectedSlot = slot;
+            durationField.setEnabled(true);
+            PotionEffect effect = getEffect(validPotions.get(slot));
+
+            if(effect == null) {
+                effect = new PotionEffect(validPotions.get(slot), 1200, 0);
+            }
+
+            durationField.setDurationTicks(effect.getDuration());
+            amplifier = effect.getAmplifier();
+            validateInputButtons();
+
+        }
+
+        private void deselect() {
+            selectedSlot = -1;
+            durationField.setEnabled(false);
+            ampDown.setEnabled(false);
+            ampUp.setEnabled(false);
+        }
+
+        public Potion selectedPotion() {
+            return validPotions.get(selectedSlot);
+        }
+    }
+
+    public class GuiDurationField extends GuiCCTextField {
+
+        private String baseValue;
+
+        public GuiDurationField(int x, int y, int width, int height) {
+            super(x, y, width, height, "100");
+            setMaxStringLength(4);
+            setAllowedCharacters("0123456789");
+            baseValue = getText();
+        }
+
+        public void setDurationTicks(int i) {
+
+            i /= 20;
+            String minutes = Integer.toString(i / 60);
+            String seconds = Integer.toString(i % 60);
+
+            if(seconds.length() == 1) {
+                seconds = '0' + seconds;
+            }
+
+            setText(minutes + seconds);
+
+        }
+
+        @Override
+        public void setEnabled(boolean b) {
+
+            super.setEnabled(b);
+
+            if(!isEnabled()) {
+                setText("100");
+            }
+
+        }
+
+        @Override
+        public void onFocusChanged() {
+            if(isFocused()) {
+                baseValue = getText();
+            } else {
+                if(!validateValue()) {
+                    setText(baseValue);
+                } else {
+                    applyEffect();
+                }
+            }
+        }
+
+        @Override
+        public void onTextChanged(String oldText) {
+            validateInputButtons();
+        }
+
+        private boolean validateValue() {
+            try {
+                int i = Integer.parseInt(getText());
+                return i > 1 && getDurationTicks() < Short.MAX_VALUE && i / 100 <= 60 && i % 100 < 60;
+            } catch(NumberFormatException ignored) {
+                return false;
+            }
+        }
+
+        @Override
+        public void drawText() {
+            String s = getText();
+            String seconds = s.substring(Math.max(0, s.length() - 2), Math.max(0, s.length() - 2) + Math.min(s.length(), 2));
+            String minutes = s.length() < 3 ? "" : s.substring(0, s.length() - 2);
+            int textY = y + height / 2 - 4;
+            int color = getTextColour();
+            FontUtils.drawCenteredString(":", x + width / 2 + 1, textY, color);
+            FontUtils.drawRightString(seconds, x + width - 3, textY, color);
+            FontUtils.drawRightString(minutes, x + width / 2 - 1, textY, color);
+        }
+
+        @Override
+        public int getTextColour() {
+            return isFocused() ? 0xCCCCCC : 0x909090;
+        }
+
+        public int getDurationTicks() {
+            int i = Integer.parseInt(getText());
+            return ((i / 100) * 60 + (i % 100)) * 20;
+        }
+
+    }
+
 }
