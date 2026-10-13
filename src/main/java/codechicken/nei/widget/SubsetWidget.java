@@ -621,7 +621,7 @@ public class SubsetWidget extends Button implements IItemFilterProvider, ItemsLo
     private long lastclicktime;
 
     public SubsetWidget() {
-        super("NEI Subsets");
+        super(NEIClientUtils.translate("inventory.item_subsets"));
         API.addItemFilter(this);
         ItemList.registerLoadCallback(this);
         itemsLoaded();
